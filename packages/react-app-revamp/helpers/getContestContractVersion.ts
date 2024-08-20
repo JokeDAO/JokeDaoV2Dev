@@ -1,3 +1,4 @@
+import { serverConfig } from "@config/wagmi/server";
 import LegacyDeployedContestContract from "@contracts/bytecodeAndAbi/Contest.2.1.pre-prompt.sol/Contest.json";
 import BetterRewardsNotesContract from "@contracts/bytecodeAndAbi/Contest.2.10.betterRewardsNotes.sol/Contest.json";
 import PromptDeployedContestContract from "@contracts/bytecodeAndAbi/Contest.2.2.prompt.sol/Contest.json";
@@ -58,10 +59,9 @@ import RmUnnecessaryVirtualsContract from "@contracts/bytecodeAndAbi/Contest.4.7
 import DeleteInMapAfterForLoopContract from "@contracts/bytecodeAndAbi/Contest.4.8.deleteInMapAfterForLoop.sol/Contest.json";
 import AddGetPropIdsWithForVotesContract from "@contracts/bytecodeAndAbi/Contest.4.9.addGetPropIdsWithForVotes.sol/Contest.json";
 import DeployedContestContract from "@contracts/bytecodeAndAbi/Contest.sol/Contest.json";
-import { ethers, utils } from "ethers";
+import { ethers } from "ethers";
 import { getEthersProvider } from "./ethers";
-import { MAX_TIME_TO_WAIT_FOR_RPC, executeWithTimeout } from "./timeout";
-import { serverConfig } from "@config/wagmi/server";
+import { executeWithTimeout, MAX_TIME_TO_WAIT_FOR_RPC } from "./timeout";
 
 export async function getContestContractVersion(address: string, chainId: number) {
   try {
@@ -181,17 +181,21 @@ export async function getContestContractVersion(address: string, chainId: number
     }
 
     if (version === "1") {
-      const bytecode = await provider.getCode(address);
-      if (bytecode.length <= 2) return defaultReturn;
-      if (!bytecode.includes(utils.id("prompt()").slice(2, 10))) {
+      const bytecode = await provider?.getCode(address);
+
+      if (!bytecode || bytecode.length <= 2) {
+        return defaultReturn;
+      }
+
+      if (!bytecode.includes(ethers.id("prompt()").slice(2, 10))) {
         return { abi: LegacyDeployedContestContract.abi, version };
-      } else if (!bytecode.includes(utils.id("allProposalTotalVotes()").slice(2, 10))) {
+      } else if (!bytecode.includes(ethers.id("allProposalTotalVotes()").slice(2, 10))) {
         return { abi: PromptDeployedContestContract.abi, version };
-      } else if (!bytecode.includes(utils.id("downvotingAllowed()").slice(2, 10))) {
+      } else if (!bytecode.includes(ethers.id("downvotingAllowed()").slice(2, 10))) {
         return { abi: AllProposalTotalVotesDeployedContestContract.abi, version };
-      } else if (!bytecode.includes(utils.id("submissionGatingByVotingToken()").slice(2, 10))) {
+      } else if (!bytecode.includes(ethers.id("submissionGatingByVotingToken()").slice(2, 10))) {
         return { abi: ProposalVotesDownvotesContract.abi, version };
-      } else if (!bytecode.includes(utils.id("officialRewardsModule()").slice(2, 10))) {
+      } else if (!bytecode.includes(ethers.id("officialRewardsModule()").slice(2, 10))) {
         return { abi: SubmissionTokenGatingContract.abi, version };
       } else {
         return { abi: RewardsContract.abi, version };

@@ -27,15 +27,14 @@ import { ContestStatus, useContestStatusStore } from "@hooks/useContestStatus/st
 import useUser from "@hooks/useUser";
 import moment from "moment";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useUrl } from "nextjs-current-url";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { useAccount, useAccountEffect } from "wagmi";
 import LayoutViewContestError from "./components/Error";
 
 const LayoutViewContest = ({ children }: { children: React.ReactNode }) => {
-  const { refresh } = useRouter();
   const pathname = usePathname();
   const url = useUrl();
   const { address: accountAddress } = useAccount();
@@ -162,6 +161,10 @@ const LayoutViewContest = ({ children }: { children: React.ReactNode }) => {
     return <Loader>Loading contest info...</Loader>;
   }
 
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
   return (
     <div className={`${isLoading ? "pointer-events-none" : ""} w-full px-6 md:px-7 lg:w-[750px] mx-auto`}>
       <div
@@ -195,7 +198,7 @@ const LayoutViewContest = ({ children }: { children: React.ReactNode }) => {
                       <span>Let&apos;s refresh!</span>
                       <p className="font-normal">Looks like live updates were frozen.</p>
                     </div>
-                    <ButtonV3 colorClass="bg-gradient-create" onClick={() => refresh()}>
+                    <ButtonV3 colorClass="bg-gradient-create" onClick={handleRefresh}>
                       Refresh
                     </ButtonV3>
                   </div>

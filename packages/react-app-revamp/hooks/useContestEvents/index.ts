@@ -10,18 +10,16 @@ import { useProposalStore } from "@hooks/useProposal/store";
 import useTotalVotesCastOnContest from "@hooks/useTotalVotesCastOnContest";
 import { readContract, watchContractEvent } from "@wagmi/core";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { formatEther } from "viem";
 
 export function useContestEvents() {
   const asPath = usePathname();
   const { address: contestAddress, chainName } = extractPathSegments(asPath ?? "");
-  const chainId = chains.filter(
-    (chain: { name: string }) => chain.name.toLowerCase().replace(" ", "") === chainName,
-  )?.[0]?.id;
+  const chainId = chains.find(chain => chain.name.toLowerCase().replace(" ", "") === chainName)?.id;
   const provider = getEthersProvider(config, { chainId });
   const { canUpdateVotesInRealTime } = useContestStore(state => state);
-  const { retry: refetchTotalVotesCastOnContest } = useTotalVotesCastOnContest(contestAddress, chainId);
+  const { retry: refetchTotalVotesCastOnContest } = useTotalVotesCastOnContest(contestAddress, chainId ?? 1);
   const { contestStatus } = useContestStatusStore(state => state);
   const { updateProposal } = useProposal();
   const { setProposalData, listProposalsData } = useProposalStore(state => state);
@@ -33,114 +31,130 @@ export function useContestEvents() {
     listProposalsDataRef.current = listProposalsData;
   }, [listProposalsData]);
 
-  /**
-   * Callback function triggered on "VoteCast" event
-   * @param args - Array of the following values: from, to, value, event|event[]
-   */
-  async function onVoteCast(args: Array<any>) {
-    try {
-      const proposalId = args[0].args.proposalId.toString();
-
-      const votesRaw = (await readContract(config, {
-        address: contestAddress as `0x${string}`,
-        abi: DeployedContestContract.abi,
-        functionName: "proposalVotes",
-        args: [proposalId],
-      })) as bigint[];
-
-      const forVotesBigInt = votesRaw[0];
-      const againstVotesBigInt = votesRaw[1];
-
-      const finalVotes = forVotesBigInt - againstVotesBigInt;
-      const votes = Number(formatEther(finalVotes));
-
-      const proposal = listProposalsDataRef.current.find(p => p.id === proposalId);
-
-      if (proposal) {
-        updateProposal(
-          {
-            ...proposal,
-            netVotes: votes,
-          },
-          listProposalsDataRef.current,
-        );
-      } else {
-        const proposal = (await readContract(config, {
-          address: contestAddress as `0x${string}`,
-          abi: DeployedContestContract.abi,
-          functionName: "getProposal",
-          args: [proposalId],
-        })) as any;
-
-        const proposalData: any = {
-          id: proposalId,
-          authorEthereumAddress: proposal.author,
-          content: proposal.description,
-          isContentImage: isUrlToImage(proposal.description) ? true : false,
-          exists: proposal.exists,
-          votes,
-        };
-
-        setProposalData(proposalData);
-      }
-
-      refetchTotalVotesCastOnContest();
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
   useEffect(() => {
     contestStatusRef.current = contestStatus;
   }, [contestStatus]);
 
-  useEffect(() => {
-    if (!canUpdateVotesInRealTime || ContestStatus.VotingOpen !== contestStatus) {
-      provider.removeAllListeners("VoteCast");
-      setDisplayReloadBanner(false);
-    } else {
-      if (ContestStatus.VotingOpen === contestStatus && canUpdateVotesInRealTime) {
-        watchContractEvent(config, {
+  const onVoteCast = useCallback(
+    async (args: Array<any>) => {
+      try {
+        const proposalId = args[0].args.proposalId.toString();
+
+        const votesRaw = (await readContract(config, {
           address: contestAddress as `0x${string}`,
           abi: DeployedContestContract.abi,
-          eventName: "VoteCast",
-          onLogs: eventLogs => {
-            onVoteCast(eventLogs).catch(err => console.log(err));
-          },
-        });
+          functionName: "proposalVotes",
+          args: [proposalId],
+        })) as bigint[];
+
+        const [forVotesBigInt, againstVotesBigInt] = votesRaw;
+        const finalVotes = forVotesBigInt - againstVotesBigInt;
+        const votes = Number(formatEther(finalVotes));
+
+        const proposal = listProposalsDataRef.current.find(p => p.id === proposalId);
+
+        if (proposal) {
+          updateProposal(
+            {
+              ...proposal,
+              netVotes: votes,
+            },
+            listProposalsDataRef.current,
+          );
+        } else {
+          const newProposal = (await readContract(config, {
+            address: contestAddress as `0x${string}`,
+            abi: DeployedContestContract.abi,
+            functionName: "getProposal",
+            args: [proposalId],
+          })) as any;
+
+          const proposalData: any = {
+            id: proposalId,
+            authorEthereumAddress: newProposal.author,
+            content: newProposal.description,
+            isContentImage: isUrlToImage(newProposal.description) ? true : false,
+            exists: newProposal.exists,
+            votes,
+          };
+
+          setProposalData(proposalData);
+        }
+
+        refetchTotalVotesCastOnContest();
+      } catch (e) {
+        console.error("Error in onVoteCast:", e);
       }
+    },
+    [contestAddress, refetchTotalVotesCastOnContest, setProposalData, updateProposal],
+  );
+
+  const removeListeners = useCallback(
+    async (event?: string) => {
+      if (provider && typeof provider.removeAllListeners === "function") {
+        try {
+          await provider.removeAllListeners(event);
+        } catch (error) {
+          console.warn(`Error removing listeners: ${error}`);
+        }
+      } else {
+        console.warn("Unable to remove listeners: provider not available or method not found");
+      }
+    },
+    [provider],
+  );
+
+  const addVoteCastListener = useCallback(async () => {
+    if (provider && typeof provider.on === "function") {
+      try {
+        await provider.on("VoteCast", onVoteCast);
+      } catch (error) {
+        console.error("Error adding VoteCast listener:", error);
+      }
+    } else {
+      console.warn("Unable to add VoteCast listener: provider not available or method not found");
+    }
+  }, [provider, onVoteCast]);
+
+  useEffect(() => {
+    const shouldAddListener = canUpdateVotesInRealTime && contestStatus === ContestStatus.VotingOpen;
+
+    if (shouldAddListener) {
+      watchContractEvent(config, {
+        address: contestAddress as `0x${string}`,
+        abi: DeployedContestContract.abi,
+        eventName: "VoteCast",
+        onLogs: onVoteCast,
+      });
+    } else {
+      removeListeners("VoteCast");
+      setDisplayReloadBanner(false);
     }
 
     return () => {
-      provider.removeAllListeners("VoteCast");
+      removeListeners("VoteCast");
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contestStatus, canUpdateVotesInRealTime]);
+  }, [contestStatus, canUpdateVotesInRealTime, contestAddress, onVoteCast, removeListeners]);
 
-  function onVisibilityChangeHandler() {
+  const onVisibilityChangeHandler = useCallback(() => {
     if (document.visibilityState === "hidden") {
-      provider.removeAllListeners();
-
+      removeListeners();
       if (contestStatusRef.current === ContestStatus.VotingOpen && canUpdateVotesInRealTime) {
         setDisplayReloadBanner(true);
       }
-      return;
     } else {
       if (contestStatusRef.current === ContestStatus.VotingOpen && canUpdateVotesInRealTime) {
-        provider.addListener("VoteCast", (...args) => {
-          onVoteCast(args);
-        });
+        addVoteCastListener();
       }
     }
-  }
+  }, [removeListeners, canUpdateVotesInRealTime, addVoteCastListener]);
 
   useEffect(() => {
     document.addEventListener("visibilitychange", onVisibilityChangeHandler);
     return () => {
       document.removeEventListener("visibilitychange", onVisibilityChangeHandler);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canUpdateVotesInRealTime]);
+  }, [onVisibilityChangeHandler]);
 
   return {
     displayReloadBanner,

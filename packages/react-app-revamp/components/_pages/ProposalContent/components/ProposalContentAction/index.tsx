@@ -7,7 +7,7 @@ import { useContestStore } from "@hooks/useContest/store";
 import { ContestStatus, useContestStatusStore } from "@hooks/useContestStatus/store";
 import { useUserStore } from "@hooks/useUser/store";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { formatEther } from "ethers/lib/utils";
+import { formatEther } from "ethers";
 import moment from "moment";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

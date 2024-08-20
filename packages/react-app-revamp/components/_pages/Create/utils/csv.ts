@@ -1,4 +1,4 @@
-import { getAddress } from "ethers/lib/utils";
+import { getAddress } from "ethers";
 
 const MAX_VOTES = 1e9; // 1 billion
 

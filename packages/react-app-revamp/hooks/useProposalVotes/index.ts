@@ -2,7 +2,7 @@
 import { config } from "@config/wagmi";
 import { useContestStore } from "@hooks/useContest/store";
 import { readContract } from "@wagmi/core";
-import { utils } from "ethers";
+import { formatEther } from "ethers";
 import { useEffect, useState } from "react";
 
 export const VOTES_PER_PAGE = 5;
@@ -70,7 +70,7 @@ export function useProposalVotes(contractAddress: string, proposalId: string, ch
       const votesArray: VotesArray = await Promise.all(votesPromises);
       const votesObj = votesArray.reduce((acc: Record<string, number>, { address, votes }: VoteEntry) => {
         const netVotes = votes[0] - votes[1];
-        acc[address] = Number(utils.formatEther(netVotes.toString()));
+        acc[address] = Number(formatEther(netVotes.toString()));
         return acc;
       }, {});
 
@@ -95,7 +95,7 @@ export function useProposalVotes(contractAddress: string, proposalId: string, ch
       const votesArray: VotesArray = await Promise.all(votesPromises);
       const votesObj = votesArray.reduce((acc: Record<string, number>, { address, votes }: VoteEntry) => {
         const netVotes = votes[0] - votes[1];
-        acc[address] = Number(utils.formatEther(netVotes.toString()));
+        acc[address] = Number(formatEther(netVotes.toString()));
         return acc;
       }, {});
 

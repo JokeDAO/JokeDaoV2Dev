@@ -15,7 +15,7 @@ import VoteFrameTiming, { VoteFrameTimingOptions } from "@components/Frames/vote
 import VoteFrameUnsupportedChain from "@components/Frames/vote/UnsupportedChain";
 import { chains } from "@config/wagmi/server";
 import getContestContractVersion from "@helpers/getContestContractVersion";
-import { parseUnits } from "ethers/lib/utils";
+import { parseUnits } from "ethers";
 import { Button, Frog, TextInput } from "frog";
 import { handle } from "frog/vercel";
 import {

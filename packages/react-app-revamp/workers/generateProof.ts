@@ -1,4 +1,4 @@
-import { parseUnits } from "ethers/lib/utils";
+import { parseUnits } from "ethers";
 import { createMerkleTree, generateProof, Recipient } from "lib/merkletree/generateMerkleTree";
 
 interface MerkleTreeProofPayload {

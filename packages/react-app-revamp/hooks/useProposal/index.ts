@@ -6,7 +6,6 @@ import getContestContractVersion from "@helpers/getContestContractVersion";
 import { useError } from "@hooks/useError";
 import { readContracts } from "@wagmi/core";
 import { compareVersions } from "compare-versions";
-import { Result } from "ethers/lib/utils";
 import { COMMENTS_VERSION } from "lib/proposal";
 import { shuffle, sortBy as sortUnique } from "lodash";
 import { usePathname } from "next/navigation";
@@ -20,6 +19,7 @@ import {
   transformProposalData,
   updateAndRankProposals,
 } from "./utils";
+import { Result } from "ethers";
 
 export const PROPOSALS_PER_PAGE = 12;
 
@@ -168,7 +168,7 @@ export function useProposal() {
 
       const proposalsIdsRawData = await getProposalIdsRaw(contractConfig, useLegacyGetAllProposalsIdFn);
 
-      let proposalsIds: Result;
+      let proposalsIds: string[];
       let mappedProposals: MappedProposalIds[] = [];
       const currentDate = new Date();
 
