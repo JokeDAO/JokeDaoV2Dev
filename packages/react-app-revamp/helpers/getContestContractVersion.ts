@@ -62,6 +62,7 @@ import RestructureExtensionsAndUtilsContract from "@contracts/bytecodeAndAbi/Con
 import RmUnnecessaryVirtualsContract from "@contracts/bytecodeAndAbi/Contest.4.7.rmUnnecessaryVirtuals.sol/Contest.json";
 import DeleteInMapAfterForLoopContract from "@contracts/bytecodeAndAbi/Contest.4.8.deleteInMapAfterForLoop.sol/Contest.json";
 import AddGetPropIdsWithForVotesContract from "@contracts/bytecodeAndAbi/Contest.4.9.addGetPropIdsWithForVotes.sol/Contest.json";
+import RmDownvotingContract from "@contracts/bytecodeAndAbi/Contest.5.1.rmDownvoting.sol/Contest.json";
 import DeployedContestContract from "@contracts/bytecodeAndAbi/Contest.sol/Contest.json";
 import { ethers, utils } from "ethers";
 import { getEthersProvider } from "./ethers";
@@ -77,7 +78,9 @@ export async function getContestContractVersion(address: string, chainId: number
     const version: string = await executeWithTimeout(MAX_TIME_TO_WAIT_FOR_RPC, contract.version());
 
     const defaultReturn = { abi: null, version: "unknown" };
-    if (version === "4.37") {
+    if (version === "5.1") {
+      return { abi: RmDownvotingContract.abi, version }; 
+    } else if (version === "4.37") {
       return { abi: EditTitleDescContract.abi, version }; 
     } else if (version === "4.36") {
       return { abi: NoCommentAfterCloseContract.abi, version }; 

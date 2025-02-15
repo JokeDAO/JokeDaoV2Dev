@@ -29,7 +29,7 @@ abstract contract GovernorSorting {
     uint256 public rankLimit; // RULE: Cannot be 0
 
     // RULE: array length can never end lower than it started a transaction, otherwise erroneous ranking can happen
-    uint256[] public sortedRanks; // value is forVotes counts, has the constraint of no duplicate values.
+    uint256[] public sortedRanks; // value is votes counts, has the constraint of no duplicate values.
 
     constructor(uint256 sortingEnabled_, uint256 rankLimit_) {
         sortingEnabled = sortingEnabled_;
@@ -37,9 +37,9 @@ abstract contract GovernorSorting {
     }
 
     /**
-     * @dev See {GovernorCountingSimple-getNumProposalsWithThisManyForVotes}.
+     * @dev See {GovernorCountingSimple-getNumProposalsWithThisManyVotes}.
      */
-    function getNumProposalsWithThisManyForVotes(uint256 forVotes) public view virtual returns (uint256 count);
+    function getNumProposalsWithThisManyVotes(uint256 votes) public view virtual returns (uint256 count);
 
     /**
      * @dev Get the sortedRanks array.
@@ -74,7 +74,7 @@ abstract contract GovernorSorting {
         }
 
         // are we checking for the oldValue?
-        bool checkForOldValue = (oldValue > 0) && (getNumProposalsWithThisManyForVotes(oldValue) == 0); // if there are props left with oldValue votes, we don't want to remove it
+        bool checkForOldValue = (oldValue > 0) && (getNumProposalsWithThisManyVotes(oldValue) == 0); // if there are props left with oldValue votes, we don't want to remove it
         bool haveFoundOldValue = false;
 
         // DO ANY SHIFTING? - we do not need to if 1. if we're checking for oldValue and 2. oldValue is at insertingIndex - if both of those are the case, then we don't need to update anything besides insertingIndex.

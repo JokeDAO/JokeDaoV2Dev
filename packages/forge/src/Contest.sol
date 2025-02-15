@@ -6,7 +6,6 @@ import "./governance/extensions/GovernorModuleRegistry.sol";
 import "./governance/extensions/GovernorEngagement.sol";
 
 contract Contest is GovernorCountingSimple, GovernorModuleRegistry, GovernorEngagement {
-    error SortingAndDownvotingCannotBothBeEnabled();
     error PayPerVoteMustBeEnabledForAnyoneCanVote();
 
     constructor(
@@ -20,12 +19,6 @@ contract Contest is GovernorCountingSimple, GovernorModuleRegistry, GovernorEnga
         GovernorSorting(_constructorArgs.intConstructorArgs.sortingEnabled, _constructorArgs.intConstructorArgs.rankLimit)
         GovernorMerkleVotes(_submissionMerkleRoot, _votingMerkleRoot)
     {
-        if (
-            _constructorArgs.intConstructorArgs.sortingEnabled == 1
-                && _constructorArgs.intConstructorArgs.downvotingAllowed == 1
-        ) {
-            revert SortingAndDownvotingCannotBothBeEnabled();
-        }
         if (_votingMerkleRoot == 0 && _constructorArgs.intConstructorArgs.payPerVote == 0) {
             revert PayPerVoteMustBeEnabledForAnyoneCanVote();
         }
