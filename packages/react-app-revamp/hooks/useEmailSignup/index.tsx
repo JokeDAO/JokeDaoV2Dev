@@ -1,11 +1,14 @@
 import { toastError, toastLoading, toastSuccess } from "@components/UI/Toast";
 import { supabase } from "@config/supabase";
 import { isSupabaseConfigured } from "@helpers/database";
+import { useEmailSend } from "@hooks/useEmailSend";
+import { EmailType } from "lib/email/types";
 import moment from "moment";
 import { useState } from "react";
 
 const useEmailSignup = () => {
   const [isLoading, setLoading] = useState(false);
+  const { sendEmail } = useEmailSend();
 
   const subscribeUser = async (
     email_address: string,
@@ -23,6 +26,8 @@ const useEmailSignup = () => {
             date: moment().format("YYYY-MM-DD HH:mm:ss"),
           },
         ]);
+
+        await sendEmail(user_address ?? "", EmailType.SignUpConfirmation);
         setLoading(false);
         if (error) {
           showToasts && toastError("There was an error while subscribing. Please try again later.", error.message);
