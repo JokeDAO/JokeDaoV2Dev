@@ -1,4 +1,4 @@
-import { Dialog, DialogPanel } from "@headlessui/react";
+import DialogModalV4 from "@components/UI/DialogModalV4";
 import { NFTMetadata } from "@hooks/useSearchNfts";
 import { FilteredToken } from "@hooks/useTokenList";
 import { FC, useCallback } from "react";
@@ -26,10 +26,10 @@ interface TokenSearchModalProps {
 
 const TokenSearchModal: FC<TokenSearchModalProps> = ({
   type,
+  hideChains = false,
   isOpen,
   setIsOpen,
   chains,
-  hideChains,
   onSelectToken,
   onClose,
   onSelectNft,
@@ -43,40 +43,32 @@ const TokenSearchModal: FC<TokenSearchModalProps> = ({
   }, [onClose, setIsOpen]);
 
   return (
-    <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
-      <div className="fixed inset-0 pointer-events-none bg-true-black bg-opacity-80" aria-hidden="true" />
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="flex min-h-full w-full items-center justify-center">
-          <DialogPanel
-            className={`text-sm shadow-file-upload mx-auto min-h-screen max-h-screen w-screen overflow-y-auto 2xs:min-h-auto 2xs:max-h-[calc(100vh-60px)] md:h-[658px] md:max-h-[658px] md:w-[552px] bg-true-black 2xs:rounded-[15px]`}
-          >
-            <div className="px-4 md:px-8 py-10">
-              <div className="flex flex-col gap-8">
-                <div className="flex flex-col gap-4">
-                  <div className="flex justify-between items-center">
-                    <p className="text-[24px] font-bold text-true-white normal-case">{tokenSearchModalTitle}</p>
-                    <img
-                      src="/modal/modal_close.svg"
-                      alt="close"
-                      width={30}
-                      height={24}
-                      onClick={handleClose}
-                      className="cursor-pointer hover:scale-[1.1]"
-                    />
-                  </div>
-                  <div className="bg-primary-5 h-[2px]" />
-                </div>
-                {type === TokenSearchModalType.ERC20 ? (
-                  <TokenSearchModalERC20 chains={chains} onSelectToken={onSelectToken} hideChains={hideChains} />
-                ) : (
-                  <TokenSearchModalNft chains={chains} onSelectNft={onSelectNft} onSelectChain={onSelectChain} />
-                )}
-              </div>
-            </div>
-          </DialogPanel>
+    <DialogModalV4 isOpen={isOpen} onClose={handleClose} width="w-full" lgWidth="lg:max-w-[552px]">
+      <div className="flex flex-col gap-8 py-6 px-4">
+        <div className="flex justify-between items-center">
+          <p className="text-[24px] text-neutral-11 font-bold">{tokenSearchModalTitle}</p>
+          <img
+            src="/modal/modal_close.svg"
+            alt="close"
+            width={39}
+            height={33}
+            className="cursor-pointer"
+            onClick={handleClose}
+          />
         </div>
+        <div className="bg-primary-5 h-[2px]" />
+        {type === TokenSearchModalType.ERC20 ? (
+          <TokenSearchModalERC20
+            chains={chains}
+            onSelectToken={onSelectToken}
+            onSelectChain={onSelectChain}
+            hideChains={hideChains}
+          />
+        ) : (
+          <TokenSearchModalNft chains={chains} onSelectNft={onSelectNft} onSelectChain={onSelectChain} />
+        )}
       </div>
-    </Dialog>
+    </DialogModalV4>
   );
 };
 

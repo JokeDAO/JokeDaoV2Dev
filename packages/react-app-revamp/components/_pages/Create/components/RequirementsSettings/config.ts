@@ -33,6 +33,34 @@ export const erc20ChainDropdownOptions: Option[] = [
     value: "mainnet",
     label: "ethereum",
   },
+  {
+    value: "arbitrumone",
+    label: "arbitrum",
+  },
+  {
+    value: "avalanche",
+    label: "avalanche",
+  },
+  {
+    value: "base",
+    label: "base",
+  },
+  {
+    value: "celo",
+    label: "celo",
+  },
+  {
+    value: "mantle",
+    label: "mantle",
+  },
+  {
+    value: "optimism",
+    label: "optimism",
+  },
+  {
+    value: "polygon",
+    label: "polygon",
+  },
 ];
 
 export const votingPowerOptions: Option[] = [

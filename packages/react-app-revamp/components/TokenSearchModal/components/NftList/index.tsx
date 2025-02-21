@@ -1,6 +1,7 @@
 import useSearchNfts, { NFTMetadata } from "@hooks/useSearchNfts";
 import { FC } from "react";
 import TokenSearchListNft from "./component/Nft";
+import SimpleBar from "simplebar-react";
 
 interface NftsSearchListProps {
   selectedChain: string;
@@ -28,10 +29,14 @@ const NftsSearchList: FC<NftsSearchListProps> = ({ selectedChain, searchValue, o
   }
 
   return (
-    <div className={`flex flex-col gap-6 animate-reveal`}>
-      {nfts.map(nft => (
-        <TokenSearchListNft key={nft.address} nft={nft} onSelectNft={onSelectNft} />
-      ))}
+    <div className="h-72 animate-reveal">
+      <SimpleBar style={{ maxHeight: "100%", height: "100%" }} className="h-full" autoHide={false}>
+        <div className="flex flex-col gap-6 h-full">
+          {nfts.map(nft => (
+            <TokenSearchListNft key={nft.address} nft={nft} onSelectNft={onSelectNft} />
+          ))}
+        </div>
+      </SimpleBar>
     </div>
   );
 };

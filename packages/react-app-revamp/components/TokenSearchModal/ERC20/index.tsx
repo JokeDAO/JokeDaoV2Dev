@@ -11,8 +11,14 @@ interface TokenSearchModalERC20Props {
   chains: Option[];
   hideChains?: boolean;
   onSelectToken?: (token: FilteredToken) => void;
+  onSelectChain?: (chain: string) => void;
 }
-const TokenSearchModalERC20: FC<TokenSearchModalERC20Props> = ({ chains: erc20Chains, hideChains, onSelectToken }) => {
+const TokenSearchModalERC20: FC<TokenSearchModalERC20Props> = ({
+  chains: erc20Chains,
+  hideChains,
+  onSelectToken,
+  onSelectChain,
+}) => {
   const [erc20SelectedChain, setErc20SelectedChain] = useState<string>(erc20Chains[0].value);
   const [searchValue, setSearchValue] = useState<string>("");
   const chainId = chains.find(chain => chain.name === erc20SelectedChain)?.id || 1;
@@ -26,7 +32,10 @@ const TokenSearchModalERC20: FC<TokenSearchModalERC20Props> = ({ chains: erc20Ch
           <TokenSearchModalChainDropdown
             defaultOption={erc20Chains[0]}
             options={erc20Chains}
-            onChange={option => setErc20SelectedChain(option)}
+            onChange={option => {
+              setErc20SelectedChain(option);
+              onSelectChain?.(option);
+            }}
           />
         </div>
       ) : null}

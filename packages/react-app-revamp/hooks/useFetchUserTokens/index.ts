@@ -31,6 +31,10 @@ export const useFetchUserTokens = (userAddress: string, chainName: string) => {
     queryFn: async (): Promise<FilteredToken[]> => {
       if (!userAddress) throw new Error("Wallet address is not available");
 
+      if (!chainToAlchemySubdomain[chainName.toLowerCase() as keyof typeof chainToAlchemySubdomain]) {
+        return [];
+      }
+
       const alchemyAppUrl = getAlchemyBaseUrl(chainName.toLowerCase());
 
       const tokenBalancesResponse = await fetch(alchemyAppUrl, {

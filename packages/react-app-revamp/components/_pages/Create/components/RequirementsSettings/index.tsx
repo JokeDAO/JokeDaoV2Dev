@@ -125,6 +125,10 @@ const CreateRequirementsSettings: FC<CreateRequirementsSettingsProps> = ({
     onChainChange?.(chain);
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = "/contest/mona-lisa-moustache.png";
+  };
+
   return (
     <div className="animate-reveal md:ml-4 md:pl-4 md:border-l border-true-white mt-4">
       <div className="flex flex-col gap-8">
@@ -151,6 +155,7 @@ const CreateRequirementsSettings: FC<CreateRequirementsSettingsProps> = ({
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       src={tokenDetails.logo}
                       alt="avatar"
+                      onError={handleImageError}
                     />
                   </div>
                   <p className="text-[20px] text-neutral-11 uppercase">

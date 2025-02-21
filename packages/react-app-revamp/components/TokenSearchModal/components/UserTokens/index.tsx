@@ -4,6 +4,7 @@ import { FC } from "react";
 import { useAccount } from "wagmi";
 import TokenSearchListToken from "../TokenList/components/Token";
 import { isAlchemyConfigured } from "@helpers/alchemy";
+import SimpleBar from "simplebar-react";
 
 interface TokenSearchModalUserTokensProps {
   chainName: string;
@@ -42,15 +43,19 @@ const TokenSearchModalUserTokens: FC<TokenSearchModalUserTokensProps> = ({
   if (!tokens) return null;
 
   return (
-    <div className="flex flex-col gap-6 animate-reveal">
-      {tokens.map(token => (
-        <TokenSearchListToken
-          key={token.address}
-          token={token}
-          onSelectToken={onSelectToken}
-          isChainDropdownOpen={isChainDropdownOpen}
-        />
-      ))}
+    <div className="h-72 animate-reveal">
+      <SimpleBar style={{ maxHeight: "100%", height: "100%" }} autoHide={false}>
+        <div className="flex flex-col gap-6 h-full pr-4">
+          {tokens.map(token => (
+            <TokenSearchListToken
+              key={token.address}
+              token={token}
+              onSelectToken={onSelectToken}
+              isChainDropdownOpen={isChainDropdownOpen}
+            />
+          ))}
+        </div>
+      </SimpleBar>
     </div>
   );
 };

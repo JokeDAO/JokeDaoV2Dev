@@ -1,7 +1,8 @@
+import { ChevronUpIcon } from "@heroicons/react/24/outline";
 import { FilteredToken, useTokenList } from "@hooks/useTokenList";
 import { FC } from "react";
 import TokenSearchListToken from "./components/Token";
-import { ChevronUpIcon } from "@heroicons/react/24/outline";
+import SimpleBar from "simplebar-react";
 
 interface TokenSearchTokenListProps {
   searchValue: string;
@@ -35,28 +36,32 @@ const TokenSearchList: FC<TokenSearchTokenListProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-6 animate-reveal">
-      {tokens.map(token => (
-        <TokenSearchListToken
-          key={token.address}
-          token={token}
-          onSelectToken={onSelectToken}
-          isChainDropdownOpen={isChainDropdownOpen}
-        />
-      ))}
-      {hasMore ? (
-        <div className="flex gap-2 items-center mb-8 cursor-pointer" onClick={() => fetchTokenListPerPage()}>
-          <p className="text-[16px] text-positive-11 font-bold uppercase hover:text-positive-10 transition-color duration-300">
-            load more
-          </p>
-          <button
-            className="transition-transform duration-500 ease-in-out transform 
+    <div className="h-72 animate-reveal">
+      <SimpleBar style={{ maxHeight: "100%", height: "100%" }} className="h-full" autoHide={false}>
+        <div className="flex flex-col gap-6 h-full">
+          {tokens.map(token => (
+            <TokenSearchListToken
+              key={token.address}
+              token={token}
+              onSelectToken={onSelectToken}
+              isChainDropdownOpen={isChainDropdownOpen}
+            />
+          ))}
+          {hasMore ? (
+            <div className="flex gap-2 items-center mb-8 cursor-pointer" onClick={() => fetchTokenListPerPage()}>
+              <p className="text-[16px] text-positive-11 font-bold uppercase hover:text-positive-10 transition-color duration-300">
+                load more
+              </p>
+              <button
+                className="transition-transform duration-500 ease-in-out transform 
             rotate-180"
-          >
-            <ChevronUpIcon height={20} className="text-positive-11" />
-          </button>
+              >
+                <ChevronUpIcon height={20} className="text-positive-11" />
+              </button>
+            </div>
+          ) : null}
         </div>
-      ) : null}
+      </SimpleBar>
     </div>
   );
 };
