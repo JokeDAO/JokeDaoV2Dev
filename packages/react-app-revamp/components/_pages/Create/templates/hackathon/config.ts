@@ -1,18 +1,23 @@
 import moment from "moment";
 import { TimingPeriod } from "../../pages/ContestTiming/utils";
-import { StepTitle } from "../../types";
+import { ContestType, StepTitle } from "../../types";
 import { TemplateConfig, TemplateType } from "../types";
 import { EntryPreview } from "@hooks/useDeployContest/store";
 
 export const hackathonConfig: TemplateConfig = {
   type: TemplateType.hackathon,
-  stepsToFulfill: [StepTitle.Rules, StepTitle.Entries, StepTitle.Timing, StepTitle.Voting, StepTitle.Confirm],
+  stepsToFulfill: [StepTitle.Voting, StepTitle.Rules, StepTitle.Confirm],
   data: {
-    prompt: {
-      summarize:
-        "In this hackathon, builders are invited to submit their project, and a jury of voters will vote on their favorite.",
-      evaluateVoters:
-        "Judges should evaluate builders’ projects based on their relevance, impact, originality, innovativeness, and success of what they’ve built.",
+    contestType: ContestType.EntryContest,
+    rules: {
+      title: "Official Hackathon!",
+      prompt: {
+        summarize:
+          "In this hackathon, builders are invited to enter their project, and a jury of voters will vote on their favorite.",
+        evaluateVoters:
+          "Judges should evaluate builders’ projects based on their personal relevance, impact, importance, innovativeness, and success of what they’ve built.",
+        contactDetails: "Join the BuildProof telegram of devs: https://t.me/+_0I7UYSgaS45NmRh",
+      },
     },
     entryPreviewConfig: {
       preview: EntryPreview.TITLE,

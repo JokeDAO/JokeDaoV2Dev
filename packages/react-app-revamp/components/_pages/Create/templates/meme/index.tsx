@@ -1,24 +1,22 @@
-import { useMediaQuery } from "react-responsive";
-
 const CreateContestMemeTemplate = () => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-
   return (
     <div className="flex flex-col gap-4 text-true-white text-[20px]">
-      <p>For a meme contest, you’ll need:</p>
-      <ul className="pl-8 list-disc">
-        <li className="font-bold normal-case">A title</li>
-        <li>
-          <b>A list of judges.</b> You’ll need their wallet addresses and voting power (we {!isMobile && <br />}{" "}
-          recommend 100 votes each).
-        </li>
-      </ul>
-      <p>Don’t want to make a list? You can also allowlist tokenholders or anyone to vote.</p>
+      <div className="md:block hidden">
+        <p>
+          For a meme contest, we'll default to let anyone enter and vote <br />
+          (by paying per vote). You'll keep a share of all charges.
+        </p>
+      </div>
+
+      <div className="md:hidden block">
+        <p>For a meme contest, we'll default to let anyone enter and vote (by paying per vote).</p>
+        <p className="mt-4">You'll keep a share of all charges.</p>
+      </div>
+
       <p>
-        <b>Duration: 8 days. </b>We’ll give creators one week to submit their projects, and judges {!isMobile && <br />}{" "}
-        one day to vote.
+        <b>Default duration: 9 days.</b> Anyone can enter for seven days, and vote in the following two.
       </p>
-      <p className="font-bold">You’ll have the chance to modify any settings you like.</p>
+      <p className="font-bold">You can modify any settings you like before launching the contest.</p>
     </div>
   );
 };

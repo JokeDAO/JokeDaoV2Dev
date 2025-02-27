@@ -1,20 +1,22 @@
-import { useMediaQuery } from "react-responsive";
-
 const CreateContestDemoDayTemplate = () => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-
   return (
     <div className="flex flex-col gap-4 text-true-white text-[20px] normal-case">
-      <p>For a demo day, you’ll need:</p>
-      <ul className="pl-8 list-disc">
-        <li className="font-bold">A title</li>
-      </ul>
+      <div className="md:block hidden">
+        <p>
+          For a demo day, we'll default to let anyone enter and vote <br />
+          (by paying per vote). You'll keep a share of all charges.
+        </p>
+      </div>
+
+      <div className="md:hidden block">
+        <p>For a demo day, we'll default to let anyone enter and vote (by paying per vote).</p>
+        <p className="mt-4">You'll keep a share of all charges.</p>
+      </div>
+
       <p>
-        <b>Duration: 2 days.</b> We’ll give builders the next day to submit their projects, and {!isMobile && <br />}{" "}
-        audiences the following day to vote.
+        <b>Default duration: 2 days.</b> Anyone can enter for one day and vote in the following day.
       </p>
-      <p>By default, we’ll let anyone submit and anyone vote.</p>
-      <p className="font-bold">You’ll have the chance to modify any settings you like.</p>
+      <p className="font-bold">You can modify any settings you like before launching the contest.</p>
     </div>
   );
 };

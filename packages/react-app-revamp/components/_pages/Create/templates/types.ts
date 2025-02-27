@@ -1,19 +1,25 @@
 import { EntryPreviewConfig, Prompt } from "@hooks/useDeployContest/store";
 import { Option } from "../components/DefaultDropdown";
-import { StepTitle } from "../types";
+import { ContestType, StepTitle } from "../types";
 
 export enum TemplateType {
-  hackathon = "hackathon",
+  leaderboard = "leaderboard",
   demoDay = "demo day",
-  debate = "debate",
-  grantsRound = "grants round",
-  memeContest = "meme contest",
   artContest = "art contest",
-  karaokeChallenge = "karaoke challenge",
+  memeContest = "meme contest",
+  hackathon = "hackathon",
+  grantsRound = "grants round",
+  debate = "debate",
+  liveContest = "live contest",
+  testContest = "test contest",
 }
 
 interface ContestData {
-  prompt: Prompt;
+  contestType: ContestType;
+  rules: {
+    title: string;
+    prompt: Prompt;
+  };
   entryPreviewConfig: EntryPreviewConfig;
   submissionOpen: Date;
   votingOpen: Date;

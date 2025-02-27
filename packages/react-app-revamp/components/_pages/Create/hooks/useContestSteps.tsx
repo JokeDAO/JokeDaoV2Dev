@@ -14,32 +14,36 @@ export const useContestSteps = () => {
   const stepReferences = {
     ContestType: 0,
     ContestVoting: 1,
-    ContestMonetization: contestType === ContestType.EntryContest ? 2 : 1,
-    ContestTiming: contestType === ContestType.EntryContest ? 3 : 2,
-    ContestEntries: contestType === ContestType.EntryContest ? 4 : 3,
-    ContestRules: contestType === ContestType.EntryContest ? 5 : 4,
-    Confirm: contestType === ContestType.EntryContest ? 6 : 5,
+    ContestMonetization: 2,
+    ContestTiming: 3,
+    ContestEntries: 4,
+    ContestRules: 5,
+    Confirm: 6,
   };
 
-  const getStepsForContestType = () => {
-    const baseSteps = [
-      { title: StepTitle.Type, content: <CreateContestTypes /> },
-      { title: StepTitle.Monetization, content: <CreateContestMonetization /> },
-      { title: StepTitle.Timing, content: <CreateContestTiming /> },
-      { title: StepTitle.Entries, content: <CreateContestEntries /> },
-      { title: StepTitle.Rules, content: <CreateContestRules /> },
-      { title: StepTitle.Confirm, content: <CreateContestConfirm /> },
-    ];
+  const allSteps = [
+    { title: StepTitle.Type, content: <CreateContestTypes /> },
+    { title: StepTitle.Voting, content: <CreateContestVoting /> },
+    { title: StepTitle.Monetization, content: <CreateContestMonetization /> },
+    { title: StepTitle.Timing, content: <CreateContestTiming /> },
+    { title: StepTitle.Entries, content: <CreateContestEntries /> },
+    { title: StepTitle.Rules, content: <CreateContestRules /> },
+    { title: StepTitle.Confirm, content: <CreateContestConfirm /> },
+  ];
 
+  // filter steps based on contest type
+  const getStepsForContestType = () => {
     if (contestType === ContestType.EntryContest) {
-      return [baseSteps[0], { title: StepTitle.Voting, content: <CreateContestVoting /> }, ...baseSteps.slice(1)];
+      return allSteps;
     }
 
-    return baseSteps;
+    // For non-entry contests, remove the voting step
+    return allSteps.filter(step => step.title !== StepTitle.Voting);
   };
 
   return {
     steps: getStepsForContestType(),
     stepReferences,
+    allSteps, // expose all steps for template filtering
   };
 };

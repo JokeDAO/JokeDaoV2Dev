@@ -4,34 +4,34 @@ import { ContestType, StepTitle } from "../../types";
 import { TemplateConfig, TemplateType } from "../types";
 import { EntryPreview } from "@hooks/useDeployContest/store";
 
-export const debateConfig: TemplateConfig = {
-  type: TemplateType.debate,
+export const leaderboardConfig: TemplateConfig = {
+  type: TemplateType.leaderboard,
   stepsToFulfill: [StepTitle.Rules, StepTitle.Confirm],
   data: {
-    contestType: ContestType.VotingContest,
+    contestType: ContestType.AnyoneCanPlay,
     rules: {
-      title: "Official Debate!",
+      title: "Project Leaderboard",
       prompt: {
-        summarize: "Pick whoever you think won this debate or feud.",
-        evaluateVoters:
-          "Voters should evaluate contestants equally based on the merits of their case as well as their delivery.",
+        summarize:
+          "This will serve as a leaderboard of the most beloved projects. Anyone can enter their project below and then vote on their favorites during the voting period.",
+        evaluateVoters: "Voters should evaluate projects based on their impact, importance, and personal relevance.",
         contactDetails: "Join the JokeRace telegram: https://t.me/+rW5X0MqnTXBkOGIx",
       },
     },
     entryPreviewConfig: {
-      preview: EntryPreview.IMAGE_AND_TITLE,
+      preview: EntryPreview.TITLE,
       isAdditionalDescriptionEnabled: true,
     },
     submissionOpen: moment().toDate(),
-    votingOpen: moment().add(30, "minutes").toDate(),
-    votingClose: moment().add(30, "minutes").add(2, "day").toDate(),
+    votingOpen: moment().add(5, "days").toDate(),
+    votingClose: moment().add(5, "days").add(2, "days").toDate(),
     votingOpenPeriod: {
       value: TimingPeriod.Custom,
       label: "custom",
     },
     votingClosePeriod: {
       value: TimingPeriod.TwoDays,
-      label: "two days",
+      label: "2 days",
     },
   },
 };

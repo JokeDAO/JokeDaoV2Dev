@@ -456,6 +456,16 @@ li {
   .blurProposals {
     opacity: 50% !important;
   }
+
+  .arrow-list-item {
+    @apply list-none;
+    position: relative;
+  }
+
+  .arrow-list-item::before {
+    content: ">";
+    margin-right: 0.5rem;
+  }
 }
 
 .loadingDots:after {

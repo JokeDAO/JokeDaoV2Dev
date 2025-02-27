@@ -1,5 +1,4 @@
-import { Prompt } from "@hooks/useDeployContest/store";
-import { Charge, VotingMerkle } from "@hooks/useDeployContest/types";
+import { VotingMerkle } from "@hooks/useDeployContest/types";
 import { Option } from "./components/DefaultDropdown";
 
 export enum StepTitle {

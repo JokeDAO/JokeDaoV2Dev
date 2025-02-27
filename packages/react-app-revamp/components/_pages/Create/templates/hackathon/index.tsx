@@ -1,24 +1,16 @@
-import { useMediaQuery } from "react-responsive";
-
 const CreateContestHackathonTemplate = () => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-
   return (
     <div className="flex flex-col gap-4 text-true-white text-[20px]">
-      <p>For a hackathon, you’ll need:</p>
-      <ul className="pl-8 list-disc">
-        <li className="font-bold normal-case">A title</li>
-        <li>
-          <b>A list of judges.</b> You’ll need their wallet addresses and voting power (we {!isMobile && <br />}
-          recommend 100 votes each).
-        </li>
-      </ul>
-      <p>Don’t want to make a list? You can also allowlist tokenholders or anyone to vote.</p>
       <p>
-        <b>Duration: 8 days. </b>We’ll give builders one week to submit their projects, and judges {!isMobile && <br />}
-        one day to vote.
+        For a hackathon, we’ll default to an entry contest: anyone can enter, and you’ll allowlist the jury to vote.{" "}
+        <br /> You can upload a csv with their wallet addresses and voting power, use presets, or let anyone vote.
       </p>
-      <p className="font-bold">You’ll have the chance to modify any settings you like.</p>
+      <p>As always, you’ll keep a share of all charges.</p>
+
+      <p>
+        <b>Default duration: 8 days.</b> Builders have one week to submit their projects, and judges one day to vote.
+      </p>
+      <p className="font-bold">You can modify any settings you like before launching the contest.</p>
     </div>
   );
 };

@@ -9,11 +9,15 @@ import CreateContestGrantsRoundTemplate from "./grants-round";
 import { grantsRoundConfig } from "./grants-round/config";
 import CreateContestHackathonTemplate from "./hackathon";
 import { hackathonConfig } from "./hackathon/config";
-import CreateContestKaraokeChallengeTemplate from "./karaoke-challenge";
-import { karaokeChallengeConfig } from "./karaoke-challenge/config";
+import CreateContestLeaderboardTemplate from "./leaderboard";
+import { leaderboardConfig } from "./leaderboard/config";
+import CreateContestLiveContestTemplate from "./live-contest";
+import { liveContestConfig } from "./live-contest/config";
 import CreateContestMemeTemplate from "./meme";
 import { memeConfig } from "./meme/config";
 import { displayValueToKeyMapping } from "./templates";
+import CreateContestTestContestTemplate from "./test-contest";
+import { testContestConfig } from "./test-contest/config";
 import { TemplateType } from "./types";
 
 interface TemplateMapping {
@@ -24,33 +28,41 @@ interface TemplateMapping {
 }
 
 export const templateMapping: TemplateMapping = {
-  hackathon: {
-    component: CreateContestHackathonTemplate,
-    config: hackathonConfig,
+  leaderboard: {
+    component: CreateContestLeaderboardTemplate,
+    config: leaderboardConfig,
   },
   "demo day": {
     component: CreateContestDemoDayTemplate,
     config: demoDayConfig,
   },
-  debate: {
-    component: CreateContestDebateTemplate,
-    config: debateConfig,
-  },
-  "grants round": {
-    component: CreateContestGrantsRoundTemplate,
-    config: grantsRoundConfig,
+  "art contest": {
+    component: CreateContestArtTemplate,
+    config: artConfig,
   },
   "meme contest": {
     component: CreateContestMemeTemplate,
     config: memeConfig,
   },
-  "art contest": {
-    component: CreateContestArtTemplate,
-    config: artConfig,
+  hackathon: {
+    component: CreateContestHackathonTemplate,
+    config: hackathonConfig,
   },
-  "karaoke challenge": {
-    component: CreateContestKaraokeChallengeTemplate,
-    config: karaokeChallengeConfig,
+  "grants round": {
+    component: CreateContestGrantsRoundTemplate,
+    config: grantsRoundConfig,
+  },
+  debate: {
+    component: CreateContestDebateTemplate,
+    config: debateConfig,
+  },
+  "live contest": {
+    component: CreateContestLiveContestTemplate,
+    config: liveContestConfig,
+  },
+  "test contest": {
+    component: CreateContestTestContestTemplate,
+    config: testContestConfig,
   },
 };
 
