@@ -47,7 +47,6 @@ const CreateContestTypesAnyoneCanPlay: FC<CreateContestTypesAnyoneCanPlayProps> 
             </span>
           </li>
 
-          {/* todo: add faq link later */}
           <li>
             read more in our{" "}
             <a href={faqLink} target="_blank" rel="noopener noreferrer" className="text-positive-11">

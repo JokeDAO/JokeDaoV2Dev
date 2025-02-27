@@ -7,22 +7,21 @@ import MobileStepper from "../../components/MobileStepper";
 import StepCircle from "../../components/StepCircle";
 import { useContestSteps } from "../../hooks/useContestSteps";
 import { useNextStep } from "../../hooks/useNextStep";
-import { usePreviousStep } from "../../hooks/usePreviousStep";
 import CreateContestCharge from "./components/Charge";
 import CreateContestChargeUnconnectedAccount from "./components/UnconnectedAccount";
 
 const CreateContestMonetization = () => {
-  const { step, votingRequirementsOption } = useDeployContestStore(state => state);
+  const { step } = useDeployContestStore(state => state);
   const { steps } = useContestSteps();
   const { isConnected, chain } = useAccount();
   const [disableNextStep, setDisableNextStep] = useState(false);
   const onNextStep = useNextStep();
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const monetizeTitle = isMobile ? `charges` : `let's monetize this puppy`;
-  const onPreviousStep = usePreviousStep();
 
   const switchLayout = useMemo<JSX.Element>(() => {
     if (!isConnected) {
+      setDisableNextStep(true);
       return <CreateContestChargeUnconnectedAccount />;
     }
 
@@ -34,7 +33,7 @@ const CreateContestMonetization = () => {
         }}
       />
     );
-  }, [chain?.name, onPreviousStep, votingRequirementsOption.value, step]);
+  }, [isConnected, chain?.name]);
 
   return (
     <div className="flex flex-col">
@@ -48,9 +47,11 @@ const CreateContestMonetization = () => {
         </div>
         <div className="grid col-start-1 md:col-start-2 col-span-2  md:ml-10 mt-8 md:mt-14">
           {switchLayout}
-          <div className="mt-16">
-            <CreateNextButton step={step + 1} isDisabled={disableNextStep} onClick={() => onNextStep()} />
-          </div>
+          {isConnected && (
+            <div className="mt-16">
+              <CreateNextButton step={step + 1} isDisabled={disableNextStep} onClick={() => onNextStep()} />
+            </div>
+          )}
         </div>
       </div>
     </div>

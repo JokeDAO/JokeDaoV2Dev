@@ -1,9 +1,9 @@
-import { Radio, RadioGroup } from "@headlessui/react";
 import shortenEthereumAddress from "@helpers/shortenEthereumAddress";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { SplitFeeDestination, SplitFeeDestinationType } from "@hooks/useDeployContest/types";
 import { FC, useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
+import CreateRadioButtonsGroup, { RadioOption } from "@components/_pages/Create/components/RadioButtonsGroup";
 
 interface ContestParamsSplitFeeDestinationProps {
   splitFeeDestination: SplitFeeDestination;
@@ -63,169 +63,144 @@ const ContestParamsSplitFeeDestination: FC<ContestParamsSplitFeeDestinationProps
     onSplitFeeDestinationAddressChange?.(value);
   };
 
+  const getOptions = (): RadioOption[] => {
+    const options: RadioOption[] = [
+      {
+        label: (
+          <>
+            my wallet <span className="text-[16px]">({isMobile ? "i earn" : "i want to earn"})</span>
+          </>
+        ),
+        value: SplitFeeDestinationType.CreatorWallet,
+      },
+      {
+        label: (
+          <>
+            another wallet{" "}
+            <span className="text-[16px]">({isMobile ? "they earn" : "i want someone else to earn"})</span>
+          </>
+        ),
+        value: SplitFeeDestinationType.AnotherWallet,
+        content:
+          selected === SplitFeeDestinationType.AnotherWallet ? (
+            <>
+              <input
+                type="text"
+                autoFocus
+                value={address}
+                onChange={e => handleSplitFeeDestinationAddressChange(e.target.value)}
+                placeholder={isMobile ? shortenEthereumAddress(PLACEHOLDER_ADDRESS, "long") : PLACEHOLDER_ADDRESS}
+                className="w-full md:w-[536px] h-10 bg-true-black border border-secondary-11 rounded-[10px] text-[20px] text-neutral-11 placeholder-neutral-10 placeholder:font-bold p-4 focus:outline-none"
+              />
+              {isRewardsModuleAddress && (
+                <p className="text-[16px] font-bold text-secondary-11">
+                  looks like this is the rewards pool! we'll send all charges to the rewards.
+                </p>
+              )}
+            </>
+          ) : null,
+      },
+      {
+        label: isMobile ? (
+          <>
+            nobody <span className="text-[16px] normal-case">(JokeRace earns)</span>
+          </>
+        ) : (
+          <>
+            i prefer to take 0% <span className="text-[16px] normal-case">(i want JokeRace to earn)</span>
+          </>
+        ),
+        value: SplitFeeDestinationType.NoSplit,
+      },
+    ];
+
+    return options;
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-4">
         <p className="text-[20px] md:text-[20px] text-neutral-11 font-bold">{percentageTitle}</p>
-        <RadioGroup value={selected} onChange={handleSplitFeeDestinationTypeChange}>
-          <div className="flex flex-col gap-2">
-            <Radio value={SplitFeeDestinationType.CreatorWallet}>
-              {({ checked }) => (
-                <div className="flex gap-4 items-start cursor-pointer">
-                  <div
-                    className={`flex items-center mt-1 justify-center w-6 h-6 border border-neutral-9 rounded-[10px] transition-colors ${
-                      checked ? "bg-secondary-11  border-0" : ""
-                    }`}
-                  ></div>
-                  <div className="flex flex-col gap-4">
-                    <p className={`text-[20px] ${checked ? "text-neutral-11" : "text-neutral-9"}`}>
-                      my wallet ({isMobile ? "i earn" : "i want to earn"})
-                    </p>
-                  </div>
-                </div>
-              )}
-            </Radio>
-            <Radio value={SplitFeeDestinationType.AnotherWallet}>
-              {({ checked }) => (
-                <div className="flex gap-4 items-start cursor-pointer">
-                  <div
-                    className={`flex items-center mt-1 justify-center w-6 h-6 border border-neutral-9 rounded-[10px] transition-colors ${
-                      checked ? "bg-secondary-11 border-0" : ""
-                    } `}
-                  ></div>
-                  <div className="flex flex-col gap-2">
-                    <p className={`text-[20px] ${checked ? "text-neutral-11" : "text-neutral-9"}`}>
-                      another wallet ({isMobile ? "they earn" : "i want someone else to earn"})
-                    </p>
+        <CreateRadioButtonsGroup
+          options={getOptions()}
+          value={selected}
+          onChange={handleSplitFeeDestinationTypeChange}
+        />
 
-                    {checked ? (
+        {includeRewardsInfo ? (
+          <div className="flex flex-col gap-4">
+            <div className="w-fit -ml-2 md:-ml-4">
+              <div
+                className="flex gap-4 items-start cursor-pointer bg-neutral-2 rounded-lg px-2 md:px-4 py-1"
+                onClick={() => setShowRewardsInfo(!showRewardsInfo)}
+              >
+                <div className="flex items-center mt-1 justify-center w-6 h-6 border border-primary-5 rounded-full"></div>
+                <div className="flex gap-2 items-center">
+                  <p className="text-[20px] text-primary-5">
+                    {isMobile ? (
                       <>
-                        <input
-                          type="text"
-                          autoFocus
-                          value={address}
-                          onChange={e => handleSplitFeeDestinationAddressChange(e.target.value)}
-                          placeholder={
-                            isMobile ? shortenEthereumAddress(PLACEHOLDER_ADDRESS, "long") : PLACEHOLDER_ADDRESS
-                          }
-                          className="w-full md:w-[536px] h-10 bg-true-black border border-secondary-11 rounded-[10px] text-[20px] text-neutral-11 placeholder-neutral-10 placeholder:font-bold p-4 focus:outline-none"
-                        />
-                        {isRewardsModuleAddress && (
-                          <p className="text-[16px] font-bold text-secondary-11">
-                            looks like this is the rewards pool! we’ll send all charges to the rewards.
-                          </p>
-                        )}
+                        rewards pool <span className="text-[16px]">(winners earn)</span>
                       </>
-                    ) : null}
-                  </div>
+                    ) : (
+                      <>
+                        the rewards pool <span className="text-[16px]">(i want winners to earn)</span>
+                      </>
+                    )}
+                  </p>
+                  <InformationCircleIcon className="w-7 h-7 text-primary-5" />
                 </div>
-              )}
-            </Radio>
-            <Radio value={SplitFeeDestinationType.NoSplit}>
-              {({ checked }) => (
-                <div className="flex gap-4 items-start cursor-pointer">
-                  <div
-                    className={`flex items-center mt-1 justify-center w-6 h-6 border border-neutral-9 rounded-[10px] transition-colors ${
-                      checked ? "bg-secondary-11  border-0" : ""
-                    }`}
-                  ></div>
-                  <div className="flex flex-col gap-4">
-                    <p className={`text-[20px] normal-case ${checked ? "text-neutral-11" : "text-neutral-9"}`}>
-                      {isMobile ? "nobody (JokeRace earns)" : "i prefer to take 0%  (i want JokeRace to earn)"}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </Radio>
-            {includeRewardsInfo ? (
-              <div className="flex flex-col gap-4">
-                <div className="w-fit -ml-2 md:-ml-4">
-                  <div
-                    className="flex gap-4 items-start cursor-pointer bg-neutral-2 rounded-lg px-2 md:px-4 py-1"
-                    onClick={() => setShowRewardsInfo(!showRewardsInfo)}
-                  >
-                    <div className="flex items-center mt-1 justify-center w-6 h-6 border border-primary-5 rounded-[10px]"></div>
-                    <div className="flex gap-2 items-center">
-                      <p className="text-[20px] text-primary-5">
-                        {isMobile ? "rewards pool (winners earn)" : "the rewards pool (i want winners to earn)"}
-                      </p>
-                      <InformationCircleIcon className="w-7 h-7 text-primary-5" />
-                    </div>
-                  </div>
-                </div>
-
-                {showRewardsInfo && (
-                  <div className="w-fit -ml-0 md:-ml-4 animate-appear">
-                    <div className="flex flex-col gap-4 md:gap-6 p-4 shadow-split-fee-destination border border-primary-1 rounded-lg">
-                      <div className="flex justify-between">
-                        <div className="flex gap-4 md:gap-2 items-center">
-                          <InformationCircleIcon className="w-7 h-7 text-negative-11" />
-                          <p className=" text-[16px] md:text-[20px] text-negative-11 italic font-bold">
-                            action required
-                          </p>
-                        </div>
-                        <button onClick={() => setShowRewardsInfo(false)}>
-                          <img
-                            src="/modal/modal_close.svg"
-                            width={24}
-                            height={24}
-                            alt="close"
-                            className="hidden md:block cursor-pointer"
-                          />
-                        </button>
-                      </div>
-                      <div className="flex flex-col gap-4 md:gap-6 pl-8">
-                        <p className="text-[16px] md:text-[20px] text-neutral-11">
-                          {isMobile
-                            ? "finish creating this contest first, then:"
-                            : "finish creating this contest first, and we’ll direct you to:"}
-                        </p>
-                        <ul className="list-disc list-inside pl-4">
-                          <li className="text-[16px] md:text-[20px] text-neutral-11">create a rewards pool</li>
-                          <li className="text-[16px] md:text-[20px] text-neutral-11">
-                            turn on self-funding rewards{" "}
-                            {!isMobile && (
-                              <>
-                                (read more{" "}
-                                <a
-                                  href={SELF_FUND_DOCS}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-positive-11"
-                                >
-                                  here)
-                                </a>
-                              </>
-                            )}
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
-            ) : null}
+            </div>
 
-            {includeRewardsPool ? (
-              <Radio value={SplitFeeDestinationType.RewardsPool}>
-                {({ checked }) => (
-                  <div className="flex gap-4 items-start cursor-pointer">
-                    <div
-                      className={`flex items-center mt-1 justify-center w-6 h-6 border border-neutral-9 rounded-[10px] transition-colors ${
-                        checked ? "bg-secondary-11  border-0" : ""
-                      }`}
-                    ></div>
-                    <div className="flex flex-col gap-4">
-                      <p className={`text-[20px] ${checked ? "text-neutral-11" : "text-neutral-9"}`}>
-                        {isMobile ? "rewards pool (winners earn)" : "the rewards pool (i want winners to earn)"}
-                      </p>
+            {showRewardsInfo && (
+              <div className="w-fit -ml-0 md:-ml-4 animate-appear">
+                <div className="flex flex-col gap-4 md:gap-6 p-4 shadow-split-fee-destination border border-primary-1 rounded-lg">
+                  <div className="flex justify-between">
+                    <div className="flex gap-4 md:gap-2 items-center">
+                      <InformationCircleIcon className="w-7 h-7 text-negative-11" />
+                      <p className=" text-[16px] md:text-[20px] text-negative-11 italic font-bold">action required</p>
                     </div>
+                    <button onClick={() => setShowRewardsInfo(false)}>
+                      <img
+                        src="/modal/modal_close.svg"
+                        width={24}
+                        height={24}
+                        alt="close"
+                        className="hidden md:block cursor-pointer"
+                      />
+                    </button>
                   </div>
-                )}
-              </Radio>
-            ) : null}
+                  <div className="flex flex-col gap-4 md:gap-6 pl-8">
+                    <p className="text-[16px] md:text-[20px] text-neutral-11">
+                      {isMobile
+                        ? "finish creating this contest first, then:"
+                        : "finish creating this contest first, and we'll direct you to:"}
+                    </p>
+                    <ul className="list-disc list-inside pl-4">
+                      <li className="text-[16px] md:text-[20px] text-neutral-11">create a rewards pool</li>
+                      <li className="text-[16px] md:text-[20px] text-neutral-11">
+                        turn on self-funding rewards{" "}
+                        {!isMobile && (
+                          <>
+                            (read more{" "}
+                            <a
+                              href={SELF_FUND_DOCS}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-positive-11"
+                            >
+                              here)
+                            </a>
+                          </>
+                        )}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </RadioGroup>
+        ) : null}
       </div>
     </div>
   );

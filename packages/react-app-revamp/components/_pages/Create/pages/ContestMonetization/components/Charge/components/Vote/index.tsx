@@ -1,8 +1,8 @@
 import CreateNumberInput from "@components/_pages/Create/components/NumberInput";
-import { Radio, RadioGroup } from "@headlessui/react";
 import { VoteType } from "@hooks/useDeployContest/types";
 import { FC, useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
+import CreateRadioButtonsGroup, { RadioOption } from "@components/_pages/Create/components/RadioButtonsGroup";
 
 interface ContestParamsChargeVoteProps {
   costToVote: number;
@@ -39,10 +39,47 @@ const ContestParamsChargeVote: FC<ContestParamsChargeVoteProps> = ({
     onVoteTypeChange?.(value);
   };
 
+  const getOptions = (): RadioOption[] => {
+    return [
+      {
+        label: "a charge each time they vote (recommended)",
+        value: VoteType.PerTransaction,
+        content:
+          selected === VoteType.PerTransaction ? (
+            <CreateNumberInput
+              value={costToVote}
+              onChange={onCostToVoteChange}
+              unitLabel={chainUnitLabel}
+              errorMessage={costToVoteError}
+              textClassName="font-bold text-center pl-0 pr-4 -ml-4"
+            />
+          ) : null,
+      },
+      {
+        label: "a charge per vote",
+        value: VoteType.PerVote,
+        content:
+          selected === VoteType.PerVote ? (
+            <CreateNumberInput
+              value={costToVote}
+              onChange={onCostToVoteChange}
+              unitLabel={chainUnitLabel}
+              errorMessage={costToVoteError}
+              textClassName="font-bold text-center pl-0 pr-4 -ml-4"
+            />
+          ) : null,
+      },
+    ];
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <p className="text-[20px] text-neutral-11">
-        {isMobile ? (
+        {isAnyoneCanVote ? (
+          <>
+            what is the charge players <b>pay per vote</b>?
+          </>
+        ) : isMobile ? (
           <>
             what is the charge to <b>vote</b>?
           </>
@@ -52,77 +89,19 @@ const ContestParamsChargeVote: FC<ContestParamsChargeVoteProps> = ({
           </>
         )}
       </p>
-      <RadioGroup value={selected} onChange={handleVoteTypeChange}>
-        <div className={`flex ${isAnyoneCanVote ? "flex-col-reverse" : "flex-col"} gap-4`}>
-          <Radio value={VoteType.PerTransaction} disabled={isAnyoneCanVote}>
-            {({ checked }) => (
-              <div className="flex gap-4 items-start cursor-pointer">
-                <div
-                  className={`flex items-center mt-1 justify-center w-6 h-6 border border-neutral-9 rounded-[10px] transition-colors ${
-                    checked ? "bg-secondary-11 border-0" : ""
-                  } ${isAnyoneCanVote ? "opacity-50" : "opacity-100"}`}
-                ></div>
-                <div className={`flex flex-col ${isAnyoneCanVote ? "gap-1" : "gap-4"}`}>
-                  <p
-                    className={`text-[20px] ${
-                      checked ? "text-neutral-11" : "text-neutral-9"
-                    } ${isAnyoneCanVote ? "opacity-50" : "opacity-100"}`}
-                  >
-                    a charge <i>each time</i> they vote {isAnyoneCanVote ? "" : "(recommended)"}
-                  </p>
-                  {checked ? (
-                    <CreateNumberInput
-                      value={costToVote}
-                      onChange={onCostToVoteChange}
-                      unitLabel={chainUnitLabel}
-                      errorMessage={costToVoteError}
-                      textClassName="font-bold text-center pl-0 pr-4 -ml-4"
-                    />
-                  ) : null}
-                  {isAnyoneCanVote ? (
-                    <p className="text-[14px] text-neutral-11">
-                      <b>note:</b> only available in entry contest type
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            )}
-          </Radio>
-          <Radio value={VoteType.PerVote}>
-            {({ checked }) => (
-              <div className="flex gap-4 items-start cursor-pointer">
-                <div
-                  className={`flex items-center mt-1 justify-center w-6 h-6 border border-neutral-9 rounded-[10px] transition-colors ${
-                    checked ? "bg-secondary-11  border-0" : ""
-                  }`}
-                ></div>
-                <div className="flex flex-col gap-4">
-                  <p className={`text-[20px] ${checked ? "text-neutral-11" : "text-neutral-9"}`}>
-                    {isMobile ? (
-                      <>
-                        a charge for <i>each vote</i>
-                      </>
-                    ) : (
-                      <>
-                        a charge for <i>each vote</i> they deploy in contest
-                      </>
-                    )}
-                  </p>
-                  {checked ? (
-                    <CreateNumberInput
-                      value={costToVote}
-                      onChange={onCostToVoteChange}
-                      unitLabel={chainUnitLabel}
-                      errorMessage={costToVoteError}
-                      textClassName="font-bold text-center pl-0 pr-4 -ml-4"
-                    />
-                  ) : null}
-                </div>
-              </div>
-            )}
-          </Radio>
+      {isAnyoneCanVote ? (
+        <div className="flex flex-col gap-4">
+          <CreateNumberInput
+            value={costToVote}
+            onChange={onCostToVoteChange}
+            unitLabel={chainUnitLabel}
+            errorMessage={costToVoteError}
+            textClassName="font-bold text-center pl-0 pr-4 -ml-4"
+          />
         </div>
-      </RadioGroup>
+      ) : (
+        <CreateRadioButtonsGroup options={getOptions()} value={selected} onChange={handleVoteTypeChange} />
+      )}
     </div>
   );
 };

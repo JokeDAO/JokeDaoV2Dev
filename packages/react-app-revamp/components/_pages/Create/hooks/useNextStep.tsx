@@ -2,8 +2,9 @@ import { useDeployContestStore } from "@hooks/useDeployContest/store";
 import { useCallback } from "react";
 import { StepTitle } from "../types";
 import type { DeployContestState } from "@hooks/useDeployContest/store";
+import { useAccount } from "wagmi";
 
-const stepValidations: Record<StepTitle, (state: DeployContestState) => boolean> = {
+const stepValidations: Record<StepTitle, (state: DeployContestState, isConnected: boolean) => boolean> = {
   [StepTitle.Type]: state => {
     return true;
   },
@@ -18,19 +19,20 @@ const stepValidations: Record<StepTitle, (state: DeployContestState) => boolean>
     return !!state.votingMerkle.csv || !!state.votingMerkle.prefilled;
   },
 
-  [StepTitle.Monetization]: state => {
-    return !!state.charge.type.costToPropose && state.charge.type.costToPropose > 0;
+  [StepTitle.Monetization]: (state, isConnected) => {
+    return isConnected && !!state.charge.type.costToPropose && state.charge.type.costToPropose > 0;
   },
   [StepTitle.Rules]: state => {
     return !!state.title && !!state.prompt.summarize && !!state.prompt.evaluateVoters;
   },
 
-  [StepTitle.Confirm]: state => {
-    return true;
+  [StepTitle.Confirm]: (state, isConnected) => {
+    return isConnected;
   },
 };
 
 export const useNextStep = () => {
+  const { isConnected } = useAccount();
   const { step: currentStep, setStep } = useDeployContestStore(state => state);
 
   const onNextStep = useCallback(
@@ -51,7 +53,7 @@ export const useNextStep = () => {
         const validationFn = stepValidations[stepToValidate];
         if (!validationFn) continue;
 
-        const isValid = validationFn(state);
+        const isValid = validationFn(state, isConnected);
         if (!isValid) {
           return;
         }
@@ -59,7 +61,7 @@ export const useNextStep = () => {
 
       setStep(targetStep ?? currentStep + 1);
     },
-    [currentStep, setStep],
+    [currentStep, setStep, isConnected],
   );
 
   return onNextStep;

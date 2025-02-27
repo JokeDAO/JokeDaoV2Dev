@@ -3,13 +3,11 @@ import { VotingMerkle } from "@hooks/useDeployContest/types";
 import { useEffect, useState } from "react";
 import CreateVotingRequirements from "../VotingRequirements";
 import CreateVotingCSVUploader from "../VotingUploadCsv";
-import { useMediaQuery } from "react-responsive";
-import { Radio, RadioGroup } from "@headlessui/react";
+import CreateRadioButtonsGroup, { RadioOption } from "@components/_pages/Create/components/RadioButtonsGroup";
 import CreateNextButton from "@components/_pages/Create/components/Buttons/Next";
 
 const CreateVotingRadioGroup = () => {
   const { setVotingTab, votingTab, setVotingMerkle, step, votingAllowlist } = useDeployContestStore(state => state);
-  const isMobile = useMediaQuery({ maxWidth: 768 });
   const [isNextClicked, setIsNextClicked] = useState(false);
 
   const onVotingRadioChange = (value: number) => {
@@ -23,50 +21,24 @@ const CreateVotingRadioGroup = () => {
     keys.forEach(key => setVotingMerkle(key, value));
   };
 
-  const tabOptions = [
+  const tabOptions: RadioOption[] = [
     {
       label: "upload a spreadsheet",
       mobileLabel: "upload csv",
       content: <CreateVotingCSVUploader isNextClicked={isNextClicked} />,
+      value: 0,
     },
     {
       label: "use presets",
       mobileLabel: "use presets",
       content: <CreateVotingRequirements isNextClicked={isNextClicked} />,
+      value: 1,
     },
   ];
 
   return (
     <div className="flex flex-col gap-16">
-      <RadioGroup value={votingTab} onChange={onVotingRadioChange}>
-        <div className="flex flex-col gap-6">
-          {tabOptions.map((option, index) => (
-            <Radio key={index} value={index}>
-              {({ checked }) => (
-                <div className={`transition-all duration-200 ${checked ? "opacity-100" : "opacity-50 cursor-pointer"}`}>
-                  <div className="flex gap-4 items-center">
-                    <div
-                      className={`flex items-center justify-center w-6 h-6 border border-neutral-9 rounded-[10px] transition-colors ${
-                        checked ? "bg-secondary-11 border-0" : ""
-                      }`}
-                    ></div>
-                    <div className="flex flex-col">
-                      <p className={`text-[20px] ${checked ? "text-neutral-11" : "text-neutral-9"}`}>
-                        {isMobile ? option.mobileLabel : option.label}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    className={`mt-4 transition-opacity duration-200 ${checked ? "opacity-100" : "opacity-50 pointer-events-none"}`}
-                  >
-                    {option.content}
-                  </div>
-                </div>
-              )}
-            </Radio>
-          ))}
-        </div>
-      </RadioGroup>
+      <CreateRadioButtonsGroup options={tabOptions} value={votingTab} onChange={onVotingRadioChange} />
       <CreateNextButton
         step={step + 1}
         onClick={() => setIsNextClicked(true)}

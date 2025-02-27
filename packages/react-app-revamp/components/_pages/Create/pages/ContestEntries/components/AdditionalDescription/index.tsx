@@ -1,6 +1,6 @@
-import { Radio, RadioGroup } from "@headlessui/react";
 import { useDeployContestStore } from "@hooks/useDeployContest/store";
 import { useMediaQuery } from "react-responsive";
+import CreateRadioButtonsGroup, { RadioOption } from "@components/_pages/Create/components/RadioButtonsGroup";
 
 const ContestEntriesAdditionalDescription = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -10,48 +10,38 @@ const ContestEntriesAdditionalDescription = () => {
     setEntryPreviewConfig({ ...entryPreviewConfig, isAdditionalDescriptionEnabled: value });
   };
 
+  const options: RadioOption[] = [
+    {
+      label: (
+        <>
+          yes <span className="text-[16px]">(recommended)</span>
+        </>
+      ),
+      value: true,
+    },
+    {
+      label: "no",
+      mobileLabel: "no",
+      value: false,
+      content:
+        !entryPreviewConfig.isAdditionalDescriptionEnabled && !isMobile ? (
+          <p className="text-neutral-9 text-[16px]">
+            (select if you *only* want players to enter a title, image, title + image, or tweet)
+          </p>
+        ) : null,
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-4">
       <p className="text-[20px] text-neutral-11 font-bold">
-        can players include an “additional description” for their preview?
+        can players include an "additional description" for their preview?
       </p>
-      <RadioGroup value={entryPreviewConfig.isAdditionalDescriptionEnabled} onChange={handleAddDescriptionChange}>
-        <div className="flex flex-col gap-4">
-          <Radio value={true}>
-            {({ checked }) => (
-              <div className="flex gap-4 items-start cursor-pointer">
-                <div
-                  className={`flex items-center mt-1 justify-center w-6 h-6 border border-neutral-9 rounded-[10px] transition-colors ${
-                    checked ? "bg-secondary-11  border-0" : ""
-                  }`}
-                ></div>
-                <div className="flex flex-col gap-4">
-                  <p className={`text-[20px] ${checked ? "text-neutral-11" : "text-neutral-9"}`}>yes (recommended)</p>
-                </div>
-              </div>
-            )}
-          </Radio>
-          <Radio value={false}>
-            {({ checked }) => (
-              <div className="flex gap-4 items-start cursor-pointer">
-                <div
-                  className={`flex items-center mt-1 justify-center w-6 h-6 border border-neutral-9 rounded-[10px] transition-colors ${
-                    checked ? "bg-secondary-11  border-0" : ""
-                  }`}
-                ></div>
-                <div className="flex flex-col gap-4">
-                  <p className={`text-[20px] ${checked ? "text-neutral-11" : "text-neutral-9"}`}>
-                    no{" "}
-                    {isMobile
-                      ? ""
-                      : "(select if you *only* want players to enter a title, image, title + image, or tweet)"}
-                  </p>
-                </div>
-              </div>
-            )}
-          </Radio>
-        </div>
-      </RadioGroup>
+      <CreateRadioButtonsGroup
+        options={options}
+        value={entryPreviewConfig.isAdditionalDescriptionEnabled}
+        onChange={handleAddDescriptionChange}
+      />
     </div>
   );
 };

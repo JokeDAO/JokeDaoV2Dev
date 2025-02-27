@@ -12,8 +12,8 @@ export const anyoneCanPlayConfig: ContestTypeConfig = {
       label: "one week",
     },
     votingClosePeriod: {
-      value: TimingPeriod.Custom,
-      label: "custom",
+      value: TimingPeriod.ThreeDays,
+      label: "three days",
     },
 
     votingAllowlist: {

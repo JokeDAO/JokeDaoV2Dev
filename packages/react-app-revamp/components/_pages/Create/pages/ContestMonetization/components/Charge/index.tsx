@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 import { chains } from "@config/wagmi";
 import useChargeDetails from "@hooks/useChargeDetails";
 import { useDeployContestStore } from "@hooks/useDeployContest/store";
@@ -23,7 +22,7 @@ interface CreateContestChargeProps {
 const CreateContestCharge: FC<CreateContestChargeProps> = ({ chain, onError }) => {
   const chainUnitLabel = chains.find(c => c.name.toLowerCase() === chain.toLowerCase())?.nativeCurrency.symbol;
   const { isError, refetch: refetchChargeDetails, isLoading } = useChargeDetails(chain);
-  const { charge, minCharge, setCharge, votingMerkle, contestType } = useDeployContestStore(state => state);
+  const { charge, minCharge, setCharge, contestType } = useDeployContestStore(state => state);
   const { minCostToPropose, minCostToVote } = minCharge;
   const [costToProposeError, setCostToProposeError] = useState("");
   const [costToVoteError, setCostToVoteError] = useState("");

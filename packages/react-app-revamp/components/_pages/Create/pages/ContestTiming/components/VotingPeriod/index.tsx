@@ -2,7 +2,6 @@ import CreateDatePicker from "@components/_pages/Create/components/DatePicker";
 import CreateDefaultDropdown from "@components/_pages/Create/components/DefaultDropdown";
 import { useDeployContestStore } from "@hooks/useDeployContest/store";
 import moment from "moment";
-import { useState } from "react";
 import { TimingPeriod, addTimeBasedOnPeriod, timingPeriodsOptions, useTimingOptionForVotingPeriod } from "../../utils";
 
 const CreateVotingPeriod = () => {
@@ -48,7 +47,7 @@ const CreateVotingPeriod = () => {
           <p className="text-[16px] font-bold text-neutral-11 uppercase">opens</p>
           <div className="flex flex-col gap-2">
             <p className="text-[20px] text-neutral-11">{formattedVoteOpen}</p>
-            <p className="text-[16px] text-neutral-14">voting opens when submissions close</p>
+            <p className="text-[16px] text-neutral-14">voting opens when the entry period closes</p>
           </div>
         </div>
         <div className="flex flex-col gap-4">
