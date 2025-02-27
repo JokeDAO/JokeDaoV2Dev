@@ -8,7 +8,6 @@ import { pluralize } from "@helpers/pluralize";
 import useContestInfo from "@hooks/useContestInfo";
 import { useError } from "@hooks/useError";
 import useTokenDetails from "@hooks/useTokenDetails";
-import { toggleContestVisibility } from "lib/creator";
 import moment from "moment";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,7 +21,6 @@ interface ContestProps {
   rewards: any;
   loading: boolean;
   rewardsLoading: boolean;
-  allowToHide?: boolean;
 }
 
 export type TimeLeft = {
@@ -30,7 +28,7 @@ export type TimeLeft = {
   type: "days" | "hours" | "minutes";
 };
 
-const Contest: FC<ContestProps> = ({ contest, loading, rewards, allowToHide, rewardsLoading }) => {
+const Contest: FC<ContestProps> = ({ contest, loading, rewards, rewardsLoading }) => {
   const { address } = useAccount();
   const pathname = usePathname();
   const [contestReward, setContestReward] = useState<any>(null);
@@ -279,37 +277,8 @@ const Contest: FC<ContestProps> = ({ contest, loading, rewards, allowToHide, rew
     }
   };
 
-  const handleToggleContestView = async (e: React.MouseEvent<HTMLImageElement, MouseEvent>) => {
-    e.preventDefault();
-    e.nativeEvent.stopImmediatePropagation();
-
-    const newState = !isHidden;
-    setIsHidden(newState);
-
-    try {
-      await toggleContestVisibility(contest.address, contest.network_name, contest.author_address, newState);
-    } catch (error) {
-      handleError(e, "Something went wrong and we couldn't toggle contest visibility.");
-      setIsHidden(!newState);
-    }
-  };
-
   return (
     <SkeletonTheme baseColor="#706f78" highlightColor="#FFE25B" duration={1}>
-      {allowToHide ? (
-        <div className="flex lg:hidden border-t border-neutral-9 pt-4 pl-3">
-          <div className="flex items-center justify-center gap-8">
-            <img
-              className="w-8 h-8 hover:opacity-80 ml-[10px]"
-              src={isHidden ? "/user/private.svg" : "/user/public.svg"}
-              alt={isHidden ? "private" : "public"}
-              onClick={handleToggleContestView}
-            />
-            <p className="text-[16px] uppercase">{isHidden ? "private" : "public"}</p>
-          </div>
-        </div>
-      ) : null}
-
       <Link href={getContestUrl(contest)}>
         <div
           className="hidden lg:full-width-grid-cols md:items-center border-t border-neutral-9 py-4 p-3 
@@ -319,17 +288,6 @@ const Contest: FC<ContestProps> = ({ contest, loading, rewards, allowToHide, rew
           <div className="flex items-center gap-4">
             {loading ? (
               <Skeleton circle height={32} width={32} />
-            ) : allowToHide ? (
-              <div className="flex flex-col items-center justify-center gap-2">
-                <img className="w-8 h-8" src={chainsImages[contest.network_name]} alt="" />
-                <img
-                  className="w-6 h-6 hover:opacity-80"
-                  src={isHidden ? "/user/private.svg" : "/user/public.svg"}
-                  alt={isHidden ? "private" : "public"}
-                  onClick={handleToggleContestView}
-                />
-                <p className="text-[12px]">{isHidden ? "private" : "public"}</p>
-              </div>
             ) : (
               <img className="w-8 h-8" src={chainsImages[contest.network_name]} alt="" />
             )}
@@ -468,7 +426,7 @@ const Contest: FC<ContestProps> = ({ contest, loading, rewards, allowToHide, rew
         {/*  Mobile */}
 
         <div
-          className={`flex flex-col gap-2 mb-4 pl-3 ${allowToHide ? "" : "border-t border-neutral-9"} pt-8 p-3 
+          className={`flex flex-col gap-2 mb-4 pl-3 border-t border-neutral-9 pt-8 p-3 
           hover:bg-neutral-3 transition-colors duration-500 ease-in-out cursor-pointer lg:hidden`}
         >
           <div className="flex items-center gap-6">

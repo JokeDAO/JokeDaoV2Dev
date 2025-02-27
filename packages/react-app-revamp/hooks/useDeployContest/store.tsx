@@ -22,15 +22,9 @@ export type Prompt = {
   imageUrl?: string;
 };
 
-export enum ContestVisibility {
-  Public = "public",
-  Unlisted = "unlisted",
-}
-
 export type AdvancedOptions = {
   sorting: boolean;
   rankLimit: number;
-  contestVisibility: ContestVisibility;
 };
 
 export type CustomizationOptions = {
@@ -213,7 +207,6 @@ export const useDeployContestStore = create<DeployContestState>((set, get) => {
     advancedOptions: {
       sorting: true,
       rankLimit: 250,
-      contestVisibility: ContestVisibility.Public,
     },
     isLoading: false,
     isSuccess: false,

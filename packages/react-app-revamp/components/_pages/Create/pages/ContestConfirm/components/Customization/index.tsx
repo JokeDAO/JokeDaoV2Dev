@@ -1,5 +1,5 @@
 import { formatNumber } from "@helpers/formatNumber";
-import { AdvancedOptions, ContestVisibility, CustomizationOptions } from "@hooks/useDeployContest/store";
+import { AdvancedOptions, CustomizationOptions } from "@hooks/useDeployContest/store";
 import { FC } from "react";
 import CreateContestConfirmLayout from "../Layout";
 
@@ -17,7 +17,7 @@ const CreateContestConfirmCustomization: FC<CreateContestConfirmCustomizationPro
   step,
   onClick,
 }) => {
-  const { customization: customizationOptions, advancedOptions } = customization;
+  const { customization: customizationOptions } = customization;
 
   return (
     <CreateContestConfirmLayout onClick={() => onClick?.(step)}>
@@ -31,9 +31,6 @@ const CreateContestConfirmCustomization: FC<CreateContestConfirmCustomizationPro
           <li className="text-[16px] list-disc">
             {formatNumber(customizationOptions.allowedSubmissionsPerUser)}{" "}
             {customizationOptions.allowedSubmissionsPerUser !== 1 ? "entries" : "entry"} per address
-          </li>
-          <li className="text-[16px] list-disc">
-            {advancedOptions.contestVisibility === ContestVisibility.Public ? "public contest" : "unlisted contest"}
           </li>
         </ul>
       </div>

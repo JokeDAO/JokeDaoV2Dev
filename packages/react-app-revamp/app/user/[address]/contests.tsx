@@ -46,7 +46,6 @@ function useContests(profileAddress: string, currentUserAddress: string, sortBy?
 
 const UserContests = ({ address }: { address: string }) => {
   const { address: currentUserAddress } = useAccount();
-  const isCreator = currentUserAddress === address;
   const [sortBy, setSortBy] = useState<string>("");
   const sortOptions = useContestSortOptions("liveContests");
   const { page, setPage, status, contestData, rewardsData, isRewardsFetching, error, isContestDataFetching } =
@@ -63,7 +62,6 @@ const UserContests = ({ address }: { address: string }) => {
             error={error}
             page={page}
             setPage={setPage}
-            allowToHide={isCreator}
             contestData={contestData}
             rewardsData={rewardsData}
             isRewardsFetching={isRewardsFetching}

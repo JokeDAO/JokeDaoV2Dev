@@ -14,7 +14,6 @@ create table
     uuid uuid not null default gen_random_uuid (),
     "votingMerkleRoot" character varying null,
     "submissionMerkleRoot" character varying null,
-    hidden boolean null default false,
     voting_requirements json null,
     submission_requirements json null,
     cost_to_propose numeric null,

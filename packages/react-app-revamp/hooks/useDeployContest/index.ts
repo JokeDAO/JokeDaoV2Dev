@@ -8,6 +8,7 @@ import getContestContractVersion from "@helpers/getContestContractVersion";
 import { isR2Configured } from "@helpers/r2";
 import useV3ContestsIndex, { ContestValues } from "@hooks/useContestsIndexV3";
 import { useContractFactoryStore } from "@hooks/useContractFactory";
+import useEmailSignup from "@hooks/useEmailSignup";
 import { useError } from "@hooks/useError";
 import { readContract, waitForTransactionReceipt } from "@wagmi/core";
 import { differenceInSeconds, getUnixTime } from "date-fns";
@@ -19,9 +20,8 @@ import { checkIfChainIsTestnet } from "lib/monetization";
 import { canUploadLargeAllowlist } from "lib/vip";
 import { Abi, parseEther } from "viem";
 import { useAccount } from "wagmi";
-import { ContestVisibility, EntryPreviewConfig, MetadataField, useDeployContestStore } from "./store";
+import { EntryPreviewConfig, MetadataField, useDeployContestStore } from "./store";
 import { SplitFeeDestinationType, SubmissionMerkle, VoteType, VotingMerkle } from "./types";
-import useEmailSignup from "@hooks/useEmailSignup";
 
 export const MAX_SUBMISSIONS_LIMIT = 1000;
 export const JK_LABS_SPLIT_DESTINATION_DEFAULT = "0xDc652C746A8F85e18Ce632d97c6118e8a52fa738";
@@ -199,7 +199,6 @@ export function useDeployContest() {
         cost_to_propose: chargeType.costToPropose,
         cost_to_vote: chargeType.costToVote,
         percentage_to_creator: percentageToCreator,
-        hidden: advancedOptions.contestVisibility === ContestVisibility.Public ? false : true,
       };
 
       await subscribeToEmail(emailSubscriptionAddress);

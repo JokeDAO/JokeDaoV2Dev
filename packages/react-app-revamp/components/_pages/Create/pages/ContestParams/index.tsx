@@ -1,16 +1,13 @@
 import { MAX_SUBMISSIONS_LIMIT } from "@hooks/useDeployContest";
-import { ContestVisibility, useDeployContestStore } from "@hooks/useDeployContest/store";
+import { useDeployContestStore } from "@hooks/useDeployContest/store";
 import { useEffect, useState } from "react";
-import ContestParamsVisibility from "./components/ContestVisibility";
 import ContestParamsSubmissionsPerContest from "./components/SubmissionsPerContest";
 import ContestParamsSubmissionsPerPlayer from "./components/SubmissionsPerPlayer";
 
 export const VOTING_STEP = 6;
 
 const CreateContestParams = () => {
-  const { customization, setCustomization, advancedOptions, setAdvancedOptions } = useDeployContestStore(
-    state => state,
-  );
+  const { customization, setCustomization } = useDeployContestStore(state => state);
   const [submissionsPerUserError, setSubmissionsPerUserError] = useState<string>("");
   const [maxSubmissionsError, setMaxSubmissionsError] = useState<string>("");
 
@@ -21,13 +18,6 @@ const CreateContestParams = () => {
   useEffect(() => {
     validateSubmissionsPerUser(customization.allowedSubmissionsPerUser);
   }, [customization.allowedSubmissionsPerUser]);
-
-  const handleContestVisibilityChange = (value: ContestVisibility) => {
-    setAdvancedOptions({
-      ...advancedOptions,
-      contestVisibility: value,
-    });
-  };
 
   const onSubmissionsPerUserChange = (value: number | null) => {
     validateSubmissionsPerUser(value);
@@ -70,11 +60,6 @@ const CreateContestParams = () => {
         maxSubmissions={customization.maxSubmissions}
         submissionsPerContestError={maxSubmissionsError}
         onMaxSubmissionsChange={onMaxSubmissionsChange}
-      />
-
-      <ContestParamsVisibility
-        contestVisibility={advancedOptions.contestVisibility}
-        onChange={handleContestVisibilityChange}
       />
     </div>
   );
