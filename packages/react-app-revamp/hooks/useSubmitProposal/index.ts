@@ -12,7 +12,7 @@ import { useError } from "@hooks/useError";
 import { useGenerateProof } from "@hooks/useGenerateProof";
 import { useMetadataStore } from "@hooks/useMetadataFields/store";
 import useProposal from "@hooks/useProposal";
-import { useProposalStore } from "@hooks/useProposal/store";
+import { ProposalCore, useProposalStore } from "@hooks/useProposal/store";
 import { useReleasableRewards } from "@hooks/useReleasableRewards";
 import { useRewardsStore } from "@hooks/useRewards/store";
 import { useUserStore } from "@hooks/useUser/store";
@@ -201,13 +201,14 @@ export function useSubmitProposal() {
           token_address: null,
         });
 
+        await fetchSingleProposal(getContractConfig(), proposalId);
+
         setIsLoading(false);
         setIsSuccess(true);
         if (showToast) toastSuccess("proposal submitted successfully!");
         await sendEntryEmail(contestEntryLink);
         increaseCurrentUserProposalCount();
         setSubmissionsCount(submissionsCount + 1);
-        fetchSingleProposal(getContractConfig(), proposalId);
 
         if (metadataFields.length > 0) {
           const clearedFields = metadataFields.map(field => ({
