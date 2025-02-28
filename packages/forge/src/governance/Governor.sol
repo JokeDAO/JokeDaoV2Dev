@@ -38,7 +38,6 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
         uint256 votingPeriod;
         uint256 numAllowedProposalSubmissions;
         uint256 maxProposalCount;
-        uint256 downvotingAllowed;
         uint256 sortingEnabled;
         uint256 rankLimit;
         uint256 percentageToCreator;
@@ -91,7 +90,7 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
     event ProposalCreated(uint256 proposalId, address proposer, string proposalDescription);
     event ProposalsDeleted(uint256[] proposalIds);
     event ContestCanceled();
-    event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 numVotes);
+    event VoteCast(address indexed voter, uint256 proposalId, uint256 numVotes);
     event CreatorPaymentReleased(address to, uint256 amount);
     event JkLabsPaymentReleased(address to, uint256 amount);
 
@@ -99,7 +98,7 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
     uint256 public constant MAX_FIELDS_METADATA_LENGTH = 10;
     uint256 public constant AMOUNT_FOR_SUMBITTER_PROOF = 10000000000000000000;
     address public constant JK_LABS_ADDRESS = 0xDc652C746A8F85e18Ce632d97c6118e8a52fa738; // our hot wallet that we collect revenue to
-    string private constant VERSION = "4.37"; // Private as to not clutter the ABI
+    string private constant VERSION = "5.1"; // Private as to not clutter the ABI
 
     string public name; // The title of the contest
     string public prompt;
@@ -109,7 +108,6 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
     uint256 public votingPeriod; // Number of seconds that voting is open.
     uint256 public numAllowedProposalSubmissions; // The number of proposals that an address who is qualified to propose can submit for this contest.
     uint256 public maxProposalCount; // Max number of proposals allowed in this contest.
-    uint256 public downvotingAllowed; // If downvoting is enabled in this contest.
     uint256 public percentageToCreator;
     uint256 public costToPropose;
     uint256 public costToVote;
@@ -180,7 +178,6 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
         votingPeriod = constructorArgs_.intConstructorArgs.votingPeriod;
         numAllowedProposalSubmissions = constructorArgs_.intConstructorArgs.numAllowedProposalSubmissions;
         maxProposalCount = constructorArgs_.intConstructorArgs.maxProposalCount;
-        downvotingAllowed = constructorArgs_.intConstructorArgs.downvotingAllowed;
         percentageToCreator = constructorArgs_.intConstructorArgs.percentageToCreator;
         costToPropose = constructorArgs_.intConstructorArgs.costToPropose;
         costToVote = constructorArgs_.intConstructorArgs.costToVote;
@@ -319,16 +316,14 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
     /**
      * @dev Remove deleted proposalIds from forVotesToProposalIds and decrement copy counts of the forVotes of proposalIds.
      */
-    function _multiRmProposalIdFromForVotesMap(uint256[] calldata proposalIds) internal virtual;
+    function _multiRmProposalIdFromVotesMap(uint256[] calldata proposalIds) internal virtual;
 
     /**
      * @dev Register a vote with a given support and voting weight.
      *
      * Note: Support is generic and can represent various things depending on the voting system used.
      */
-    function _countVote(uint256 proposalId, address account, uint8 support, uint256 numVotes, uint256 totalVotes)
-        internal
-        virtual;
+    function _countVote(uint256 proposalId, address account, uint256 numVotes, uint256 totalVotes) internal virtual;
 
     /**
      * @dev Verifies that `account` is permissioned to propose via merkle proof.
@@ -493,9 +488,9 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
         }
 
         // we only do sorting if downvoting is disabled and if sorting is enabled
-        if (downvotingAllowed == 0 && sortingEnabled == 1) {
-            // remove proposalIds from forVotesToProposalIds (could contain proposalIds that have been deleted before, that's ok though)
-            _multiRmProposalIdFromForVotesMap(proposalIdsToDelete);
+        if (sortingEnabled == 1) {
+            // remove proposalIds from votesToProposalIds (could contain proposalIds that have been deleted before, that's ok though)
+            _multiRmProposalIdFromVotesMap(proposalIdsToDelete);
         }
 
         emit ProposalsDeleted(proposalIds);
@@ -532,7 +527,7 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
     /**
      * @dev Cast a vote with a merkle proof.
      */
-    function castVote(uint256 proposalId, uint8 support, uint256 totalVotes, uint256 numVotes, bytes32[] calldata proof)
+    function castVote(uint256 proposalId, uint256 totalVotes, uint256 numVotes, bytes32[] calldata proof)
         public
         payable
         returns (uint256)
@@ -544,17 +539,13 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
 
         _distributeCost(actionCost);
 
-        return _castVote(proposalId, msg.sender, support, numVotes);
+        return _castVote(proposalId, msg.sender, numVotes);
     }
 
     /**
      * @dev Cast a vote without a proof if you have already voted with a proof.
      */
-    function castVoteWithoutProof(uint256 proposalId, uint8 support, uint256 numVotes)
-        public
-        payable
-        returns (uint256)
-    {
+    function castVoteWithoutProof(uint256 proposalId, uint256 numVotes) public payable returns (uint256) {
         uint256 actionCost = _determineCorrectAmountSent(Actions.Vote, numVotes);
 
         if (proposalIsDeleted[proposalId]) revert CannotVoteOnDeletedProposal();
@@ -562,7 +553,7 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
 
         _distributeCost(actionCost);
 
-        return _castVote(proposalId, msg.sender, support, numVotes);
+        return _castVote(proposalId, msg.sender, numVotes);
     }
 
     /**
@@ -571,18 +562,15 @@ abstract contract Governor is GovernorSorting, GovernorMerkleVotes {
      *
      * Emits a {IGovernor-VoteCast} event.
      */
-    function _castVote(uint256 proposalId, address account, uint8 support, uint256 numVotes)
-        internal
-        returns (uint256)
-    {
+    function _castVote(uint256 proposalId, address account, uint256 numVotes) internal returns (uint256) {
         if (state() != ContestState.Active) revert ContestMustBeActiveToVote(state());
         if (numVotes == 0) revert NeedAtLeastOneVoteToVote();
 
-        _countVote(proposalId, account, support, numVotes, addressTotalVotes[account]);
+        _countVote(proposalId, account, numVotes, addressTotalVotes[account]);
 
         addressesThatHaveVoted.push(msg.sender);
 
-        emit VoteCast(account, proposalId, support, numVotes);
+        emit VoteCast(account, proposalId, numVotes);
 
         return addressTotalVotes[account];
     }

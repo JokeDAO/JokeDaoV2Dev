@@ -8,35 +8,20 @@ import "../Governor.sol";
  * @dev Extension of {Governor} for simple vote counting.
  */
 abstract contract GovernorCountingSimple is Governor {
-    /**
-     * @dev Supported vote types. Matches Governor Bravo ordering.
-     */
-    enum VoteType {
-        For,
-        Against
-    }
-
-    struct VoteCounts {
-        uint256 forVotes;
-        uint256 againstVotes;
-    }
-
     struct ProposalVote {
-        VoteCounts proposalVoteCounts;
+        uint256 proposalVoteCount;
         address[] addressesVoted;
-        mapping(address => VoteCounts) addressVoteCounts;
+        mapping(address => uint256) addressVoteCount;
     }
 
     uint256 public totalVotesCast; // Total votes cast in contest so far
-    mapping(address => uint256) public addressTotalCastVoteCounts;
-    mapping(uint256 => ProposalVote) public proposalVotesStructs;
+    mapping(address => uint256) public addressTotalCastVoteCount;
+    mapping(uint256 => ProposalVote) public proposalVoteStructs;
 
-    mapping(uint256 => uint256[]) public forVotesToProposalIds;
+    mapping(uint256 => uint256[]) public votesToProposalIds;
 
     error MoreThanOneProposalWithThisManyVotes();
     error NotEnoughVotesLeft();
-    error DownvotingNotEnabled();
-    error InvalidVoteType();
 
     error RankCannotBeZero();
     error RankIsNotInSortedRanks();
@@ -45,39 +30,30 @@ abstract contract GovernorCountingSimple is Governor {
     /**
      * @dev Accessor to the internal vote counts for a given proposal.
      */
-    function proposalVotes(uint256 proposalId) public view returns (uint256 forVotes, uint256 againstVotes) {
-        ProposalVote storage proposalvote = proposalVotesStructs[proposalId];
-        return (proposalvote.proposalVoteCounts.forVotes, proposalvote.proposalVoteCounts.againstVotes);
+    function proposalVotes(uint256 proposalId) public view returns (uint256 voteCount) {
+        return proposalVoteStructs[proposalId].proposalVoteCount;
     }
 
     /**
      * @dev Accessor to how many votes an address has cast for a given proposal.
      */
-    function proposalAddressVotes(uint256 proposalId, address userAddress)
-        public
-        view
-        returns (uint256 forVotes, uint256 againstVotes)
-    {
-        ProposalVote storage proposalvote = proposalVotesStructs[proposalId];
-        return (
-            proposalvote.addressVoteCounts[userAddress].forVotes,
-            proposalvote.addressVoteCounts[userAddress].againstVotes
-        );
+    function proposalAddressVotes(uint256 proposalId, address userAddress) public view returns (uint256 voteCount) {
+        return proposalVoteStructs[proposalId].addressVoteCount[userAddress];
     }
 
     /**
      * @dev Accessor to which addresses have cast a vote for a given proposal.
      */
     function proposalAddressesHaveVoted(uint256 proposalId) public view returns (address[] memory) {
-        ProposalVote storage proposalvote = proposalVotesStructs[proposalId];
-        return proposalvote.addressesVoted;
+        ProposalVote storage proposalVote = proposalVoteStructs[proposalId];
+        return proposalVote.addressesVoted;
     }
 
     /**
      * @dev Accessor to how many votes an address has cast total for the contest so far.
      */
     function contestAddressTotalVotesCast(address userAddress) public view returns (uint256 userTotalVotesCast) {
-        return addressTotalCastVoteCounts[userAddress];
+        return addressTotalCastVoteCount[userAddress];
     }
 
     /**
@@ -86,43 +62,43 @@ abstract contract GovernorCountingSimple is Governor {
     function allProposalTotalVotes()
         public
         view
-        returns (uint256[] memory proposalIdsReturn, VoteCounts[] memory proposalVoteCountsArrayReturn)
+        returns (uint256[] memory proposalIdsReturn, uint256[] memory proposalVoteCountsArrayReturn)
     {
         uint256[] memory proposalIdsMemVar = getAllProposalIds();
-        VoteCounts[] memory proposalVoteCountsArray = new VoteCounts[](proposalIdsMemVar.length);
+        uint256[] memory proposalVoteCountsArray = new uint256[](proposalIdsMemVar.length);
         for (uint256 i = 0; i < proposalIdsMemVar.length; i++) {
-            proposalVoteCountsArray[i] = proposalVotesStructs[proposalIdsMemVar[i]].proposalVoteCounts;
+            proposalVoteCountsArray[i] = proposalVoteStructs[proposalIdsMemVar[i]].proposalVoteCount;
         }
         return (proposalIdsMemVar, proposalVoteCountsArray);
     }
 
     /**
-     * @dev Get the whole array in `forVotesToProposalIds` for a given `forVotes` amount.
+     * @dev Get the whole array in `votesToProposalIds` for a given votes amount.
      */
-    function getProposalsWithThisManyForVotes(uint256 forVotes)
+    function getProposalsWithThisManyVotes(uint256 votes)
         public
         view
-        returns (uint256[] memory proposalsWithThisManyForVotes)
+        returns (uint256[] memory proposalsWithThisManyVotes)
     {
-        return forVotesToProposalIds[forVotes];
+        return votesToProposalIds[votes];
     }
 
     /**
-     * @dev Get the number of proposals that have `forVotes` number of for votes.
+     * @dev Get the number of proposals that have a given number of votes.
      */
-    function getNumProposalsWithThisManyForVotes(uint256 forVotes) public view override returns (uint256 count) {
-        return forVotesToProposalIds[forVotes].length;
+    function getNumProposalsWithThisManyVotes(uint256 votes) public view override returns (uint256 count) {
+        return votesToProposalIds[votes].length;
     }
 
     /**
-     * @dev Get the only proposal id with this many for votes.
+     * @dev Get the only proposal id with this many votes.
      * NOTE: Should only get called at a point at which you are sure there is only one proposal id
-     *       with a certain number of forVotes (we only use it in the RewardsModule after ties have
+     *       with a certain number of votes (we only use it in the RewardsModule after ties have
      *       been checked for).
      */
-    function getOnlyProposalIdWithThisManyForVotes(uint256 forVotes) public view returns (uint256 proposalId) {
-        if (forVotesToProposalIds[forVotes].length != 1) revert MoreThanOneProposalWithThisManyVotes();
-        return forVotesToProposalIds[forVotes][0];
+    function getOnlyProposalIdWithThisManyVotes(uint256 votes) public view returns (uint256 proposalId) {
+        if (votesToProposalIds[votes].length != 1) revert MoreThanOneProposalWithThisManyVotes();
+        return votesToProposalIds[votes][0];
     }
 
     /**
@@ -139,7 +115,7 @@ abstract contract GovernorCountingSimple is Governor {
         for (uint256 index = 0; index < sortedRanksLength; index++) {
             // if this is a value of a deleted proposal or an ungarbage collected oldValue, go forwards without
             // incrementing the counter
-            if (getNumProposalsWithThisManyForVotes(sortedRanksMemVar[index]) == 0) {
+            if (getNumProposalsWithThisManyVotes(sortedRanksMemVar[index]) == 0) {
                 continue;
             }
             // if the counter is at the rank we are looking for, then return with it
@@ -163,7 +139,7 @@ abstract contract GovernorCountingSimple is Governor {
         }
 
         for (uint256 index = 0; index < idx + 1; index++) {
-            if (getNumProposalsWithThisManyForVotes(sortedRanks[index]) > 1) {
+            if (getNumProposalsWithThisManyVotes(sortedRanks[index]) > 1) {
                 return true;
             }
         }
@@ -171,18 +147,18 @@ abstract contract GovernorCountingSimple is Governor {
     }
 
     /**
-     * @dev Remove this proposalId from the list of proposalIds that share its current forVotes
-     *      value in forVotesToProposalIds.
+     * @dev Remove this proposalId from the list of proposalIds that share its current votes
+     *      value in votesToProposalIds.
      */
-    function _rmProposalIdFromForVotesMap(uint256 proposalId, uint256 forVotes) internal {
-        uint256[] memory forVotesToPropIdMemVar = forVotesToProposalIds[forVotes]; // only check state var once to save on gas
-        for (uint256 i = 0; i < forVotesToPropIdMemVar.length; i++) {
-            if (forVotesToPropIdMemVar[i] == proposalId) {
+    function _rmProposalIdFromVotesMap(uint256 proposalId, uint256 votes) internal {
+        uint256[] memory votesToPropIdMemVar = votesToProposalIds[votes]; // only check state var once to save on gas
+        for (uint256 i = 0; i < votesToPropIdMemVar.length; i++) {
+            if (votesToPropIdMemVar[i] == proposalId) {
                 // swap with last item and pop bc we don't care about order.
                 // makes things cleaner (than just deleting) and saves on gas if there end up being a ton of proposals that pass
                 // through having a certain number of votes throughout the contest.
-                forVotesToProposalIds[forVotes][i] = forVotesToPropIdMemVar[forVotesToPropIdMemVar.length - 1];
-                forVotesToProposalIds[forVotes].pop();
+                votesToProposalIds[votes][i] = votesToPropIdMemVar[votesToPropIdMemVar.length - 1];
+                votesToProposalIds[votes].pop();
                 break;
             }
         }
@@ -191,65 +167,51 @@ abstract contract GovernorCountingSimple is Governor {
     /**
      * @dev See {Governor-_multiRmProposalIdFromForVotesMap}.
      */
-    function _multiRmProposalIdFromForVotesMap(uint256[] calldata proposalIdsToDelete) internal override {
+    function _multiRmProposalIdFromVotesMap(uint256[] calldata proposalIdsToDelete) internal override {
         for (uint256 i = 0; i < proposalIdsToDelete.length; i++) {
             uint256 currentProposalId = proposalIdsToDelete[i];
-            uint256 currentProposalsForVotes = proposalVotesStructs[currentProposalId].proposalVoteCounts.forVotes;
+            uint256 currentProposalsVotes = proposalVoteStructs[currentProposalId].proposalVoteCount;
 
-            // remove this proposalId from the list of proposalIdsToDelete that share its current forVotes
-            // value in forVotesToProposalIds
-            _rmProposalIdFromForVotesMap(currentProposalId, currentProposalsForVotes);
+            // remove this proposalId from the list of proposalIdsToDelete that share its current votes
+            // value in votesToProposalIds
+            _rmProposalIdFromVotesMap(currentProposalId, currentProposalsVotes);
         }
     }
 
     /**
-     * @dev See {Governor-_countVote}. In this module, the support follows the `VoteType` enum (from Governor Bravo).
+     * @dev See {Governor-_countVote}.
      */
-    function _countVote(uint256 proposalId, address account, uint8 support, uint256 numVotes, uint256 totalVotes)
-        internal
-        override
-    {
-        ProposalVote storage proposalvote = proposalVotesStructs[proposalId];
+    function _countVote(uint256 proposalId, address account, uint256 numVotes, uint256 totalVotes) internal override {
+        ProposalVote storage proposalVote = proposalVoteStructs[proposalId];
 
-        if ((votingMerkleRoot != 0) && (numVotes > (totalVotes - addressTotalCastVoteCounts[account]))) {
+        if ((votingMerkleRoot != 0) && (numVotes > (totalVotes - addressTotalCastVoteCount[account]))) {
             revert NotEnoughVotesLeft();
         }
 
-        bool firstTimeVoting = (
-            proposalvote.addressVoteCounts[account].forVotes == 0
-                && proposalvote.addressVoteCounts[account].againstVotes == 0
-        );
+        bool firstTimeVoting = (proposalVote.addressVoteCount[account] == 0);
 
-        if (support == uint8(VoteType.For)) {
-            proposalvote.proposalVoteCounts.forVotes += numVotes;
-            proposalvote.addressVoteCounts[account].forVotes += numVotes;
-        } else if (support == uint8(VoteType.Against)) {
-            if (downvotingAllowed != 1) revert DownvotingNotEnabled();
-            proposalvote.proposalVoteCounts.againstVotes += numVotes;
-            proposalvote.addressVoteCounts[account].againstVotes += numVotes;
-        } else {
-            revert InvalidVoteType();
-        }
+        proposalVote.proposalVoteCount += numVotes;
+        proposalVote.addressVoteCount[account] += numVotes;
 
         if (firstTimeVoting) {
-            proposalvote.addressesVoted.push(account);
+            proposalVote.addressesVoted.push(account);
         }
-        addressTotalCastVoteCounts[account] += numVotes;
+        addressTotalCastVoteCount[account] += numVotes;
         totalVotesCast += numVotes;
 
         // sorting and consequently rewards module compatibility is only available if downvoting is disabled and sorting enabled
-        if ((downvotingAllowed == 0) && (sortingEnabled == 1)) {
-            uint256 newForVotes = proposalvote.proposalVoteCounts.forVotes; // only check state var once to save on gas
-            uint256 oldForVotes = newForVotes - numVotes;
+        if (sortingEnabled == 1) {
+            uint256 newVotes = proposalVote.proposalVoteCount; // only check state var once to save on gas
+            uint256 oldVotes = newVotes - numVotes;
 
             // update map of forVotes => proposalId[] to be able to go from rank => proposalId.
-            // if oldForVotes is 0, then this proposal will not already be in this map, so we don't need to rm it
-            if (oldForVotes > 0) {
-                _rmProposalIdFromForVotesMap(proposalId, oldForVotes);
+            // if oldVotes is 0, then this proposal will not already be in this map, so we don't need to rm it
+            if (oldVotes > 0) {
+                _rmProposalIdFromVotesMap(proposalId, oldVotes);
             }
-            forVotesToProposalIds[newForVotes].push(proposalId);
+            votesToProposalIds[newVotes].push(proposalId);
 
-            _updateRanks(oldForVotes, newForVotes);
+            _updateRanks(oldVotes, newVotes);
         }
     }
 }

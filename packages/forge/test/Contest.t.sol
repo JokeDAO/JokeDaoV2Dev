@@ -16,7 +16,6 @@ contract ContestTest is Test {
     uint64 public constant VOTING_PERIOD = 10000;
     uint64 public constant NUM_ALLOWED_PROPOSAL_SUBMISSIONS = 3;
     uint64 public constant MAX_PROPOSAL_COUNT = 100;
-    uint64 public constant DOWNVOTING_ALLOWED = 0;
 
     // COST PARAMS
     uint256 public constant FIFTY_PERCENT_TO_CREATOR = 50;
@@ -41,7 +40,6 @@ contract ContestTest is Test {
         VOTING_PERIOD,
         NUM_ALLOWED_PROPOSAL_SUBMISSIONS,
         MAX_PROPOSAL_COUNT,
-        DOWNVOTING_ALLOWED,
         SORTING_ENABLED,
         RANK_LIMIT_250,
         FIFTY_PERCENT_TO_CREATOR,
@@ -56,7 +54,6 @@ contract ContestTest is Test {
         VOTING_PERIOD,
         NUM_ALLOWED_PROPOSAL_SUBMISSIONS,
         MAX_PROPOSAL_COUNT,
-        DOWNVOTING_ALLOWED,
         SORTING_ENABLED,
         RANK_LIMIT_250,
         FIFTY_PERCENT_TO_CREATOR,
@@ -213,10 +210,6 @@ contract ContestTest is Test {
         assertEq(contest.maxProposalCount(), MAX_PROPOSAL_COUNT);
     }
 
-    function testDownvotingAllowed() public view {
-        assertEq(contest.downvotingAllowed(), DOWNVOTING_ALLOWED);
-    }
-
     function testCreator() public view {
         assertEq(contest.creator(), CREATOR_ADDRESS_1);
     }
@@ -344,7 +337,7 @@ contract ContestTest is Test {
         vm.warp(1681650001);
         uint256 proposalId = contest.propose(firstProposalPA1, submissionProof1);
         vm.warp(1681660001);
-        uint256 totalVotes = contest.castVote(proposalId, 0, 10 ether, 1 ether, votingProof1);
+        uint256 totalVotes = contest.castVote(proposalId, 10 ether, 1 ether, votingProof1);
 
         vm.stopPrank();
 
@@ -357,7 +350,7 @@ contract ContestTest is Test {
         uint256 proposalId = contest.propose(firstProposalPA1, submissionProof1);
         vm.warp(1681660001);
         vm.prank(PERMISSIONED_ADDRESS_2);
-        uint256 totalVotes = contest.castVote(proposalId, 0, 100 ether, 1 ether, votingProof2);
+        uint256 totalVotes = contest.castVote(proposalId, 100 ether, 1 ether, votingProof2);
 
         assertEq(totalVotes, 100 ether);
     }
@@ -368,8 +361,8 @@ contract ContestTest is Test {
         vm.warp(1681650001);
         uint256 proposalId = contest.propose(firstProposalPA1, submissionProof1);
         vm.warp(1681660001);
-        contest.castVote(proposalId, 0, 10 ether, 1 ether, votingProof1);
-        uint256 totalVotesWithoutProof = contest.castVoteWithoutProof(proposalId, 0, 1 ether);
+        contest.castVote(proposalId, 10 ether, 1 ether, votingProof1);
+        uint256 totalVotesWithoutProof = contest.castVoteWithoutProof(proposalId, 1 ether);
 
         vm.stopPrank();
 

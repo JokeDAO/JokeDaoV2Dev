@@ -38,7 +38,7 @@ contract RewardsModule {
     mapping(uint256 => uint256) public shares; // Getter for the amount of shares held by a ranking.
     mapping(uint256 => uint256) public released; // Getter for the amount of Ether already released to a ranking.
     uint256[] public payees;
-    string private constant VERSION = "4.37"; // Private as to not clutter the ABI
+    string private constant VERSION = "5.1"; // Private as to not clutter the ABI
 
     mapping(IERC20 => uint256) public erc20TotalReleased;
     mapping(IERC20 => mapping(uint256 => uint256)) public erc20Released;
@@ -51,7 +51,6 @@ contract RewardsModule {
     error PayeesSharesLengthMismatch();
     error MustHaveAtLeastOnePayee();
     error TotalSharesCannotBeZero();
-    error MustHaveDownvotingDisabled();
     error MustHaveSortingEnabled();
     error ContestMustBeCompleted();
     error PayoutRankCannotBeZero();
@@ -144,7 +143,6 @@ contract RewardsModule {
      * @dev Run release checks.
      */
     function runReleaseChecks(uint256 ranking) public view {
-        if (underlyingContest.downvotingAllowed() != 0) revert MustHaveDownvotingDisabled();
         if (underlyingContest.sortingEnabled() != 1) revert MustHaveSortingEnabled();
         if (underlyingContest.state() != Governor.ContestState.Completed) revert ContestMustBeCompleted();
         if (ranking == 0) revert PayoutRankCannotBeZero();
@@ -167,7 +165,7 @@ contract RewardsModule {
         else {
             uint256 rankValue = underlyingContest.sortedRanks(determinedRankingIdxInSortedRanks);
             Governor.ProposalCore memory rankingProposal = underlyingContest.getProposal(
-                underlyingContest.getOnlyProposalIdWithThisManyForVotes(rankValue) // if no ties there should only be one
+                underlyingContest.getOnlyProposalIdWithThisManyVotes(rankValue) // if no ties there should only be one
             );
             addressToPayOut = paysOutTarget ? rankingProposal.targetMetadata.targetAddress : rankingProposal.author;
         }
