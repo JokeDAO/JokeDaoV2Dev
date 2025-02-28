@@ -74,7 +74,7 @@ const ContestPromptPageV3Layout: FC<ContestPromptPageV3LayoutProps> = ({ prompt,
         </div>
 
         {shouldShowReadMore && !isExpanded && (
-          <div className="w-full flex -mt-12 items-center justify-center">
+          <div className="w-full flex -mt-12 items-center justify-center z-10">
             <button
               onClick={() => setIsExpanded(true)}
               className="text-[12px] md:text-[16px] font-bold flex z-50 w-[120px] md:w-40 h-10 rounded-lg items-center justify-center bg-primary-1 gap-1 text-positive-11 hover:bg-positive-11 hover:text-primary-1 transition-all duration-300 ease-in-out"
