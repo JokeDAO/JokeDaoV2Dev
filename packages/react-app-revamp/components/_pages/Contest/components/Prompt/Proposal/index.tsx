@@ -1,4 +1,5 @@
 import { Proposal } from "@components/_pages/ProposalContent";
+import { Tweet } from "@components/_pages/ProposalContent/components/ProposalLayout/Tweet/components/CustomTweet";
 import { extractPathSegments } from "@helpers/extractPath";
 import { twitterRegex } from "@helpers/regex";
 import {
@@ -16,7 +17,6 @@ import { UrlMatcher } from "interweave-autolink";
 import { ProposalState } from "lib/proposal";
 import { usePathname } from "next/navigation";
 import { FC, ReactNode } from "react";
-import { Tweet } from "react-tweet";
 
 interface ContestProposalProps {
   proposal: Proposal;

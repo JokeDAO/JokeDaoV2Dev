@@ -9,7 +9,7 @@ export const Tweet = ({ id, apiUrl, fallback = <TweetSkeleton />, components, on
 
   if (isLoading) return <div id="tweet-skeleton">{fallback}</div>;
   if (error || !data) {
-    return <CustomTweetNotFound error={onError ? onError(error) : error} />;
+    return <CustomTweetNotFound id={id} error={onError ? onError(error) : error} />;
   }
 
   return <MyTweet tweet={data} components={components} />;
